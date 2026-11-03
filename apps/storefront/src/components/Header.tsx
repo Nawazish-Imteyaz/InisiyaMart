@@ -15,9 +15,7 @@ const links = [
 export function Header() {
   return (
     <>
-      <div className="topbar">
-        Preview website · <Link href="/designs/" style={{ color: "inherit", fontWeight: 700 }}>Help us choose the design →</Link>
-      </div>
+      <div className="topbar">Handmade in Azamgarh · Delivered to Kuwait, Saudi Arabia, UAE, Qatar, Bahrain &amp; Oman</div>
       <header className="header">
         <div className="container header-row" style={{ position: "relative" }}>
           <details className="mobile-menu">

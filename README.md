@@ -10,7 +10,7 @@ Handmade gifts from Azamgarh, delivered across the GCC (Kuwait, Saudi Arabia, UA
 - `docs/brand/`: logo, colours, photos
 
 ## Live preview (for family testing)
-**https://nawazish-imteyaz.github.io/InisiyaMart/** · choose a design at **/designs/**
+**https://nawazish-imteyaz.github.io/InisiyaMart/** · final design: Rose Plum (decision 005)
 (auto-deployed from `apps/storefront` by `.github/workflows/pages.yml` on every push to `main`)
 
 ## Status

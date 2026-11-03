@@ -16,7 +16,8 @@
 ## Phase 1.5: Free catalogue site on Cloudflare (see decision 002)
 - [x] Next.js static storefront (`apps/storefront`): Home, Shop, 9 product pages, Story, Designs (2026-11-03)
 - [x] Public preview on GitHub Pages with a 4-design switcher + WhatsApp voting for family
-- [ ] Family picks the final design → remove the other themes and the picker
+- [x] Family picked **Rose Plum** → other themes and picker removed (decision 005)
+- [ ] Owner sends: WhatsApp number, real products (names, prices, photos), family story
 - [ ] Move hosting to Cloudflare Pages + insihouse.com domain
 - [ ] Arabic version, country prices
 - [ ] Product photos in R2, product data in D1 / CMS
