@@ -1,53 +1,41 @@
 # 01 · Reference Websites: What to Learn From Each
 
-> Use these for **patterns and ideas only**. Never copy names, logos, photos, copy or distinctive design.
-> Feature notes were written from general knowledge in Nov 2026. Re-check the live sites when designing a specific screen.
+> Patterns and ideas only. Never copy names, logos, photos, copy or distinctive design.
 
-## Primary reference: Bleems (bleems.com/kw)
-Kuwait-founded online gifting marketplace serving GCC countries.
+## Bleems (bleems.com): reviewed live 2026-11-03
+Gifting marketplace (flowers, confections, gifts, toys) with many partner shops.
 
-**Patterns worth adopting**
-| Area | Pattern | Our version |
-|---|---|---|
-| Country selector | Country in URL (`/kw`, `/sa`, `/ae`…) drives currency, delivery and catalogue | Same URL scheme: `/{country}/{lang}/…` |
-| Language | English ⇄ Arabic toggle, full RTL | Same, with Arabic as an equal first-class language |
-| Browse by occasion | Birthday, Anniversary, Get Well, New Baby, Eid, Ramadan, Mother's Day, Graduation… | Same occasions plus Wedding / Nikah, Housewarming and Corporate |
-| Browse by category | Flowers, cakes, chocolates, plants, perfumes, balloons… | Our craft categories (see `04`) plus gift add-ons |
-| Multi-vendor | Many shops, each with a shop page | "Maker" pages (family first, artisans later) |
-| Delivery date / slot | Pick date and time slot at checkout | Pick **estimated delivery date**; time slots only for GCC hub stock |
-| Gift message | Free card message, sender/recipient details, "surprise" option | Same, plus optional handwritten-style card |
-| Recipient address | Send to someone else's address, often by phone and area | Recipient name, phone and area-based address (GCC addresses use area/block/street) |
-| Add-ons / upsell | "Add a cake / balloon / chocolate" at the cart | "Complete the gift": wrapping, card, attar, sweets |
-| Mobile app | Native app with push offers | Start as a PWA; native app in a later phase |
-| Promotions | Banners per occasion, promo codes | Same, driven by the GCC calendar (`03`) |
-
-## Similar GCC gifting sites
-| Site | What to learn |
+| What Bleems has | Our better version |
 |---|---|
-| **Floward** (floward.com) | Very clean premium product pages, occasion reminders ("never forget a date"), corporate gifting portal, subscriptions |
-| **Noon** / **Amazon.ae / .sa** | Customer trust signals: ratings, delivery estimate on product card, cash-on-delivery norms, Arabic SEO |
-| **Ounass** / **Namshi** | Premium bilingual fashion UX, RTL done well, editorial storytelling |
+| Mega-menu: Flowers, Confections, Gifts, Toys, Occasions, Shops | Simple menu: Shop, Occasions, Black Pottery, Silk, Hampers, Story |
+| Delivery-area modal (country/address) before browsing | Light **PIN-code check** on product pages; never block browsing |
+| "What are you looking for?" big category tiles | Colourful **3D tilt** category tiles |
+| Occasion tiles (Birthday, Love, Get Well, New Baby, Thank you…) | Indian occasions: Rakhi, Diwali, Eid, Wedding & Nikah, Birthday… |
+| Product rails: Featured, Birthday Gifts, Trending, New | Swipeable rails with smooth snap scrolling |
+| Product card: image, name, "by shop", price | + "Handmade" badge, craft name, wishlist heart, hover lift |
+| Stats strip, partner-with-us CTA, app badges | Later (no invented stats) |
+| **No hero, no motion, no 3D** | **3D hero** (rotating black-pottery surahi + gift box), scroll reveals, marquee |
 
-## Handmade / Indian craft sites
-| Site | What to learn |
+## Indian gifting sites
+| Site | Learn |
 |---|---|
-| **Etsy** | Maker profiles, "handmade" trust, personalisation fields per product, reviews with photos |
-| **iTokri** (itokri.com) | Indian crafts with region-based browsing and craft stories |
-| **Jaypore**, **Okhai**, **Gaatha** | Premium photography of Indian crafts, artisan storytelling, craft "journal" blog |
-| **Amazon Karigar / Handmade** | Cross-border handmade listings, compliance-friendly product data |
+| **FNP** (Ferns N Petals) | Occasion + recipient navigation, same-day/midnight delivery messaging, PIN-code check |
+| **IGP** | Personalised gifts, festival landing pages (Rakhi, Diwali) |
+| **Archies** | Gifts for students and friends |
+| **Bigsmall** | Fun, colourful product cards for young shoppers |
 
-## Feature checklist distilled from all references
-- [ ] Country + language selector (persisted)
-- [ ] Mega-menu: Occasions / Categories / Makers / Corporate
-- [ ] Hero banners per campaign (Ramadan, Eid, National Day)
-- [ ] Product card: image, name, price in local currency, delivery estimate, "handmade" badge
-- [ ] Product page: gallery + zoom, video, craft story, maker, materials, size, care, personalisation fields, delivery estimator, reviews
-- [ ] Wishlist, recently viewed
-- [ ] Cart with gift add-ons and gift wrap
-- [ ] Checkout: sender, recipient, gift message, delivery date, payment
-- [ ] Order tracking page plus WhatsApp / SMS / email updates
-- [ ] Occasion reminders
-- [ ] Corporate gifting enquiry form plus bulk quotes
-- [ ] Reviews with photos
-- [ ] Blog / "Craft Journal"
-- [ ] WhatsApp chat button (essential in GCC and India)
+## Indian craft sites
+| Site | Learn |
+|---|---|
+| **iTokri** | Region-based craft browsing and stories |
+| **Jaypore**, **Okhai**, **Gaatha** | Premium craft photography, artisan storytelling |
+| **Etsy** | Maker profiles, personalisation fields, reviews with photos |
+
+## Feature checklist
+- [ ] Search with suggestions
+- [ ] Occasion + category browsing, product rails
+- [ ] Product card: photo, name, craft, ₹ price, badge, wishlist
+- [ ] Product page: gallery, personalisation, PIN-code check, craft story, WhatsApp order
+- [ ] Festival campaign banners
+- [ ] WhatsApp chat everywhere
+- [ ] Cart & checkout with UPI / COD (Stage B)

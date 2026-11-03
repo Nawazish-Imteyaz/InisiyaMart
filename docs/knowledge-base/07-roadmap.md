@@ -1,48 +1,33 @@
-# 07 · Roadmap
+# 07 · Roadmap (India)
 
-## Phase 0: Foundation (current)
+## Phase 0: Foundation ✅
 - [x] Knowledge base and project agent
-- [ ] Owner fills `08-brand-intake.md` (name, logo, products, prices)
-- [ ] Decide D-001 fulfilment, D-002 platform, D-003 launch countries
-- [ ] Register domain and social handles
-- [ ] India registrations started (GST, IEC). See `06`
+- [x] Brand name Insi House, logo concept, Rose Plum design (decisions 001–005)
+- [x] GitHub repo + live preview on GitHub Pages
+- [x] Market switched to **India only** (decision 006)
 
-## Phase 1: Design
-- [ ] Brand kit (logo variants, colours, fonts EN + AR) into `docs/brand/`
-- [ ] Sitemap and wireframes (mobile first): Home, Listing, Product, Cart, Checkout, Account
-- [ ] Hi-fi designs (Figma) in LTR and RTL
-- [ ] Product photography for the first 20–40 products
+## Phase 1: Catalogue website (Stage A, now)
+- [x] Next.js static storefront: Home, Shop, product pages, Story
+- [x] Vibrant redesign with 3D hero, smooth motion, festive colours (decision 006)
+- [ ] Owner sends: WhatsApp number, real products (₹ prices, sizes, photos), family story
+- [ ] Owner lists items to remove from the current site
+- [ ] Orders via WhatsApp + Razorpay payment link / UPI QR
+- [ ] Policies: shipping, returns, privacy, terms, grievance officer
+- [ ] Domain + Cloudflare Pages
 
-## Phase 1.5: Free catalogue site on Cloudflare (see decision 002)
-- [x] Next.js static storefront (`apps/storefront`): Home, Shop, 9 product pages, Story, Designs (2026-11-03)
-- [x] Public preview on GitHub Pages with a 4-design switcher + WhatsApp voting for family
-- [x] Family picked **Rose Plum** → other themes and picker removed (decision 005)
-- [ ] Owner sends: WhatsApp number, real products (names, prices, photos), family story
-- [ ] Move hosting to Cloudflare Pages + insihouse.com domain
-- [ ] Arabic version, country prices
-- [ ] Product photos in R2, product data in D1 / CMS
-- [ ] "Order on WhatsApp" + order-request form, payment by payment link
-- [ ] Craft story pages, About, policies
-
-## Phase 2: MVP build with full checkout (launch in 1–2 countries)
-- [ ] Storefront + backend set up per `05`
-- [ ] Regions for launch countries, currencies, tax, shipping rates
-- [ ] Payment gateway live (KNET / Apple Pay / cards)
-- [ ] Courier integration (India → GCC)
-- [ ] Bilingual catalogue (20–40 products), craft story pages
-- [ ] Policies, FAQ, WhatsApp, email notifications
-- [ ] Analytics + pixels, SEO basics
-- [ ] Test orders end-to-end (including a real parcel to Kuwait / UAE)
+## Phase 2: Full online shop (Stage B)
+- [ ] Cart, checkout with UPI / cards / COD (Razorpay)
+- [ ] Shiprocket integration: PIN-code check, labels, tracking
+- [ ] Order emails + WhatsApp updates
+- [ ] Admin for products and orders (Medusa or Shopify headless)
+- [ ] Hindi version
 
 ## Phase 3: Growth
-- [ ] Remaining GCC countries
-- [ ] Occasion reminders, abandoned cart, reviews with photos
-- [ ] Corporate gifting portal
-- [ ] Tabby / Tamara
-- [ ] GCC stock hub for best-sellers (fast delivery)
-- [ ] Ramadan / Eid campaign machinery
+- [ ] Festival campaigns: Raksha Bandhan, Diwali, Eid, wedding season
+- [ ] Reviews with photos, wishlist, gift reminders
+- [ ] Corporate Diwali gifting
+- [ ] Instagram Reels of the making process, influencer collaborations
 
-## Phase 4: Marketplace & app
-- [ ] Onboard external Azamgarh / UP artisans as vendors (commission model)
-- [ ] Vendor portal and payouts
-- [ ] Mobile app (or PWA enhancements)
+## Phase 4: Marketplace
+- [ ] Onboard other Azamgarh / UP artisans as vendors
+- [ ] Marketplaces: Amazon Karigar, Flipkart Samarth, Etsy (verify)

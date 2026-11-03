@@ -7,17 +7,17 @@ Design canvas: https://claude.ai/artifact/84epr9T8pLyHt1fghBX6s5 (board "★ Rec
 |---|---|
 | English wordmark | **INSI HOUSE** (Cormorant Garamond 600, letter-spacing 0.16em) |
 | Urdu wordmark (logo) | **انسی ہاؤس** (Noto Nastaliq Urdu). Arabic readers can read it too |
-| Arabic-language website UI | إنسي هاوس (IBM Plex Sans Arabic) |
+| Hindi website UI (later) | इंसी हाउस |
 | Tagline EN | Handmade gifts from Azamgarh |
 | Tagline Urdu | اعظم گڑھ کے ہنر کا تحفہ ("a gift of Azamgarh's craft") |
-| Tagline Arabic (GCC site) | هدايا يدوية من أعظم كره |
+| Tagline Hindi (later) | आज़मगढ़ से हाथों से बने तोहफ़े (to confirm) |
 
 Why Urdu: Azamgarh's language is Urdu, and Nastaliq is the script of its poets (Shibli, Kaifi Azmi).
-In the Gulf, Nastaliq looks distinctive and handmade, yet Arabic readers can still read it.
+Nastaliq looks distinctive and handmade, and gives the brand a unique, heritage feel across India.
 
 ## Logo: "Mehrab & Surahi"
 A gold mehrab (arch) frame with a black-pottery surahi inside. The surahi has a silver zig-zag etched band and a gold dot.
-- Arch = shared Awadhi / Indo-Islamic and Gulf architecture
+- Arch = Awadhi / Indo-Islamic architecture (mehrab, jharokha)
 - Surahi = Nizamabad black pottery, Azamgarh's signature craft
 - Versions: full lockup (dark), light lockup, app icon (rounded square), round social avatar, gift tag
 - Status: concept. Needs a final vector clean-up before printing
@@ -46,7 +46,7 @@ black-pottery photography backgrounds.
 | Headings / logo EN | Cormorant Garamond |
 | Logo / decorative Urdu | Noto Nastaliq Urdu (needs line-height ≥ 2) |
 | Body, prices, buttons | Manrope |
-| Arabic website UI | IBM Plex Sans Arabic |
+| Hindi (later) | Noto Sans Devanagari |
 
 ## Collection names (words shared by Urdu and Arabic)
 | Collection | Urdu | Arabic | Meaning | For |
@@ -55,3 +55,13 @@ black-pottery photography backgrounds.
 | Nafees | نفیس | نفيس | exquisite | Luxury line |
 | Zauq | ذوق | ذوق | refined taste | Home décor |
 | Khuloos | خلوص | خلوص | sincerity | Corporate & thank-you gifts |
+
+## Festive accents (decision 006: vibrant India redesign)
+Used for occasion tiles, badges, hero glow and festival campaigns, never for body text.
+| Name | Hex | Feel |
+|---|---|---|
+| Marigold | #F4A63A | Diwali, haldi, celebration |
+| Rani Pink | #E0457B | Rakhi, weddings, "for her" |
+| Peacock | #127C82 | Heritage, calm contrast |
+| Mango | #FFC857 | Joy, summer, students |
+| Lilac | #B89BD9 | Soft, young, birthdays |

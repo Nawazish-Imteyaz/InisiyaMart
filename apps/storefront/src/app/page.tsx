@@ -1,118 +1,240 @@
 import Link from "next/link";
-import { collections, occasions, products } from "@/data/catalog";
+import { categories, collections, occasions, products } from "@/data/catalog";
 import { ProductCard } from "@/components/ProductCard";
-import { CardIcon, GiftIcon, HeartIcon, TruckIcon } from "@/components/Icons";
+import { ProductArt } from "@/components/ProductArt";
+import { HeroStage } from "@/components/HeroStage";
+import { Reveal, Tilt } from "@/components/Motion";
+import { CardIcon, ChatIcon, GiftIcon, HeartIcon, TruckIcon } from "@/components/Icons";
 import { site, whatsappLink } from "@/lib/site";
 
+const marquee = [
+  "Handmade in Azamgarh",
+  "Nizamabad black pottery",
+  "Mubarakpur silk",
+  "Gift-wrapped with love",
+  "Delivered across India",
+  "Personalised gifts",
+  "Pay by UPI",
+];
+
+const steps = [
+  { title: "Choose a gift", text: "Pick from pottery, silk, décor and hampers, or ask us to help you choose.", color: "var(--rani)" },
+  { title: "Make it personal", text: "Add a name, a message card in English, Hindi or Urdu, and gift wrap.", color: "var(--marigold)" },
+  { title: "We wrap & deliver", text: "Packed safely by hand and delivered to any PIN code in India, with tracking.", color: "var(--peacock)" },
+];
+
 const features = [
-  { icon: <HeartIcon />, title: "Handmade by our family", text: "Every piece is made by hand in Azamgarh, never mass-produced." },
-  { icon: <GiftIcon />, title: "Wrapped as a gift", text: "Elegant packaging and a personal message card in English, Arabic or Urdu." },
-  { icon: <TruckIcon />, title: "Delivered across the GCC", text: "Kuwait, Saudi Arabia, UAE, Qatar, Bahrain and Oman, with tracking on WhatsApp." },
-  { icon: <CardIcon />, title: "Easy ordering", text: "Order on WhatsApp and pay securely with the payment link we send you." },
+  { icon: <HeartIcon />, title: "Handmade by our family", text: "Every piece is made by hand in Azamgarh, never mass-produced.", bg: "var(--rani)" },
+  { icon: <GiftIcon />, title: "Ready to gift", text: "Beautiful packaging with your personal message card.", bg: "var(--marigold)" },
+  { icon: <TruckIcon />, title: "Delivered across India", text: "Safe, tracked delivery to metros, towns and villages.", bg: "var(--peacock)" },
+  { icon: <CardIcon />, title: "Easy payment", text: "Pay by UPI, card or net banking with a secure link.", bg: "var(--plum)" },
 ];
 
 export default function Home() {
+  const marqueeItems = [...marquee, ...marquee];
   return (
     <>
+      {/* HERO */}
       <section className="hero">
+        <span className="blob b1" aria-hidden="true" />
+        <span className="blob b2" aria-hidden="true" />
+        <span className="blob b3" aria-hidden="true" />
         <div className="container hero-row">
           <div className="hero-copy">
-            <span className="eyebrow">Handmade · Gift-ready · Made with love</span>
-            <h1 className="display">Gifts she&apos;ll treasure, handmade in Azamgarh</h1>
-            <p className="muted" style={{ fontSize: 18, lineHeight: 1.6, margin: 0, maxInlineSize: 520 }}>
-              Black pottery, Mubarakpur silk and hand-crafted décor, made by our family and wrapped as a gift, with your personal message inside.
+            <span className="eyebrow">Handmade · Personalised · Made with love</span>
+            <h1 className="display">
+              Gifts she&apos;ll <span className="grad-text">treasure</span>, handmade in Azamgarh
+            </h1>
+            <p className="lead">
+              Black pottery from Nizamabad, silk from Mubarakpur and hand-crafted décor, made by our family, wrapped as a gift and {site.delivery.toLowerCase()}.
             </p>
             <div className="row-btns">
-              <Link href="/shop/" className="btn">Shop gifts</Link>
-              <a className="btn btn-outline" href={whatsappLink("Hello Insi House! Can you help me choose a gift?")} target="_blank" rel="noopener noreferrer">Help me choose</a>
+              <Link href="/shop/" className="btn btn-glow">Shop gifts</Link>
+              <a className="btn btn-outline" href={whatsappLink("Hello Insi House! Can you help me choose a gift?")} target="_blank" rel="noopener noreferrer">
+                <ChatIcon size={18} /> Help me choose
+              </a>
             </div>
-            <div className="checks">
-              <span>✓ Handmade by our family</span>
-              <span>✓ Personal gift message</span>
-              <span>✓ Delivered across the GCC</span>
-            </div>
-          </div>
-          <div className="hero-media">
-            <div className="hero-frame arch ph tone-rose">[Hero photo: gift box with black pottery vase and a silk dupatta]</div>
-            <div className="hero-note">
-              <div className="eyebrow" style={{ fontSize: 11 }}>Personal message card</div>
-              <div className="display" style={{ fontSize: 20, fontStyle: "italic", fontWeight: 500 }}>&ldquo;For you, with love&rdquo;</div>
+            <div className="trust">
+              <span><i style={{ background: "var(--rani)" }} />Handmade</span>
+              <span><i style={{ background: "var(--marigold)" }} />Personalised</span>
+              <span><i style={{ background: "var(--peacock)" }} />All-India delivery</span>
+              <span><i style={{ background: "var(--lilac)" }} />UPI payments</span>
             </div>
           </div>
+          <HeroStage />
         </div>
       </section>
 
-      <section className="section container">
-        <div className="section-head">
-          <h2 className="display">Shop by occasion</h2>
-          <Link href="/shop/" style={{ fontWeight: 700 }}>See all gifts →</Link>
+      {/* MARQUEE */}
+      <div className="marquee" aria-label={marquee.join(", ")}>
+        <div className="marquee-track" aria-hidden="true">
+          {marqueeItems.map((m, i) => (
+            <span key={i}>{m}<span className="star">✦</span></span>
+          ))}
         </div>
-        <div className="grid-sm">
-          {occasions.map((o) => (
-            <Link key={o.name} href="/shop/" className="occasion">
-              <span className={`ph arch tone-${o.tone}`}>[photo]</span>
-              {o.name}
-            </Link>
+      </div>
+
+      {/* CATEGORIES */}
+      <section className="section container">
+        <Reveal className="section-head">
+          <h2 className="display">What are you looking for?</h2>
+          <Link href="/shop/" className="link-more">Shop all gifts →</Link>
+        </Reveal>
+        <div className="cats">
+          {categories.map((c, i) => (
+            <Reveal key={c.name} delay={i * 90}>
+              <Tilt>
+                <Link href="/shop/" className="cat" style={{ background: c.bg }}>
+                  <span className="cat-art pop"><ProductArt art={c.art} size={140} light /></span>
+                  <h3>{c.name}</h3>
+                  <span>{c.sub} · Shop now →</span>
+                </Link>
+              </Tilt>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="container" style={{ paddingBlockEnd: 72 }}>
-        <div className="section-head">
+      {/* OCCASIONS */}
+      <section className="container" style={{ paddingBlockEnd: 80 }}>
+        <Reveal className="section-head">
+          <div>
+            <span className="eyebrow">Celebrate every moment</span>
+            <h2 className="display" style={{ marginBlockStart: 8 }}>Shop by occasion</h2>
+          </div>
+        </Reveal>
+        <div className="occasions">
+          {occasions.map((o, i) => (
+            <Reveal key={o.name} delay={i * 60}>
+              <Link href="/shop/" className="occasion">
+                <span className="o-art arch" style={{ background: o.bg }}>
+                  {o.urdu ? <span className="urdu" lang="ur">{o.urdu}</span> : <GiftBurst />}
+                </span>
+                {o.name}
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* TRENDING RAIL */}
+      <section className="container" style={{ paddingBlockEnd: 80 }}>
+        <Reveal className="section-head">
+          <h2 className="display">Trending gifts <span className="grad-text">✦</span></h2>
+          <Link href="/shop/" className="link-more">See all →</Link>
+        </Reveal>
+        <Reveal>
+          <div className="rail" tabIndex={0} aria-label="Trending gifts, scroll sideways">
+            {products.map((p) => <ProductCard key={p.slug} p={p} />)}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* COLLECTIONS */}
+      <section className="container" style={{ paddingBlockEnd: 80 }}>
+        <Reveal className="section-head">
           <div>
             <h2 className="display">Our collections</h2>
-            <p className="muted" style={{ margin: "6px 0 0" }}>Named with words loved in both Urdu and Arabic.</p>
+            <p className="muted" style={{ margin: "8px 0 0" }}>Named with beautiful Urdu words.</p>
           </div>
-        </div>
+        </Reveal>
         <div className="grid">
-          {collections.map((c) => (
-            <Link key={c.name} href="/shop/" className={`collection tone-${c.tone}`}>
-              <span className="urdu" dir="rtl" lang="ur" style={{ textAlign: "start" }}>{c.urdu}</span>
-              <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                <span className="name">{c.name}</span>
-                <span style={{ fontSize: 14, opacity: 0.85 }}>{c.desc}</span>
-              </span>
-            </Link>
+          {collections.map((c, i) => (
+            <Reveal key={c.name} delay={i * 90}>
+              <Tilt max={6}>
+                <Link href="/shop/" className={`collection ${c.cls}`}>
+                  <span className="urdu pop" dir="rtl" lang="ur">{c.urdu}</span>
+                  <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <span className="name">{c.name}</span>
+                    <span style={{ fontSize: 14, opacity: 0.9 }}>{c.desc}</span>
+                  </span>
+                </Link>
+              </Tilt>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      <section className="container" style={{ paddingBlockEnd: 72 }}>
-        <div className="section-head">
-          <h2 className="display">Loved gifts</h2>
-          <Link href="/shop/" style={{ fontWeight: 700 }}>Shop all →</Link>
-        </div>
-        <div className="grid">
-          {products.slice(0, 4).map((p) => <ProductCard key={p.slug} p={p} />)}
+      {/* HOW IT WORKS */}
+      <section className="container" style={{ paddingBlockEnd: 80 }}>
+        <Reveal className="section-head"><h2 className="display">Gifting in 3 easy steps</h2></Reveal>
+        <div className="steps">
+          {steps.map((s, i) => (
+            <Reveal key={s.title} delay={i * 120}>
+              <div className="step">
+                <span className="num" style={{ background: s.color }}>{i + 1}</span>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
+      {/* STORY */}
       <section className="band section">
         <div className="container band-row">
-          <div className="band-copy">
-            <span className="urdu" dir="rtl" lang="ur" style={{ color: "var(--gold)", fontSize: 22, textAlign: "start" }}>{site.taglineUrdu}</span>
-            <h2 className="display" style={{ fontSize: "clamp(34px, 5vw, 48px)" }}>Every piece carries a story</h2>
+          <Reveal className="band-copy">
+            <span className="urdu" dir="rtl" lang="ur" style={{ color: "var(--gold)", fontSize: 24, textAlign: "start" }}>{site.taglineUrdu}</span>
+            <h2 className="display" style={{ fontSize: "clamp(36px, 5vw, 54px)" }}>Every piece carries a story</h2>
             <p>From the black clay of Nizamabad to the silk looms of Mubarakpur, our family has grown up with Azamgarh&apos;s crafts. Each gift is made by hand, so no two are exactly alike.</p>
             <Link href="/story/" className="btn btn-light" style={{ alignSelf: "flex-start" }}>Meet the makers</Link>
-          </div>
-          <div className="band-media">
-            <div className="ph arch tone-ink">[Photo: black pottery being etched]</div>
-            <div className="ph arch tone-dusty" style={{ marginBlockStart: 40 }}>[Photo: silk on the loom]</div>
-          </div>
+          </Reveal>
+          <Reveal className="band-media" delay={150}>
+            <div className="arch tone-ink"><ProductArt art="pot" size={150} light /></div>
+            <div className="arch tone-dusty" style={{ marginBlockStart: 40 }}><ProductArt art="fabric" size={150} light /></div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="section container">
+      {/* 3D WORDMARK */}
+      <section className="word3d-wrap" aria-label={site.name}>
+        <Reveal>
+          <span className="word3d" aria-hidden="true">INSI HOUSE</span>
+          <div className="urdu grad-text" dir="rtl" lang="ur" style={{ fontSize: "clamp(26px, 4vw, 44px)", marginBlockStart: 8 }}>{site.urdu}</div>
+        </Reveal>
+      </section>
+
+      {/* FEATURES */}
+      <section className="container" style={{ paddingBlockEnd: 72 }}>
         <div className="grid">
-          {features.map((f) => (
-            <div key={f.title} className="feature">
-              <div className="feature-icon">{f.icon}</div>
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
-            </div>
+          {features.map((f, i) => (
+            <Reveal key={f.title} delay={i * 90}>
+              <div className="feature">
+                <div className="feature-icon" style={{ background: f.bg }}>{f.icon}</div>
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </section>
+
+      {/* CTA */}
+      <section className="container" style={{ paddingBlockEnd: 88 }}>
+        <Reveal>
+          <div className="cta">
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxInlineSize: 600 }}>
+              <h2 className="display" style={{ fontSize: "clamp(30px, 4vw, 44px)" }}>Not sure what to gift?</h2>
+              <p className="muted" style={{ margin: 0, fontSize: 17 }}>Tell us who it&apos;s for and your budget, and we&apos;ll suggest the perfect handmade gift.</p>
+            </div>
+            <a className="btn btn-glow" href={whatsappLink("Hello Insi House! Please suggest a gift. It's for: ___ , budget: ₹___")} target="_blank" rel="noopener noreferrer">
+              <ChatIcon size={18} /> Ask us on WhatsApp
+            </a>
+          </div>
+        </Reveal>
+      </section>
     </>
+  );
+}
+
+function GiftBurst() {
+  return (
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <rect x="14" y="28" width="36" height="26" rx="4" fill="rgba(255,255,255,0.9)" />
+      <rect x="10" y="20" width="44" height="10" rx="3" fill="#fff" />
+      <rect x="29" y="20" width="6" height="34" fill="rgba(107,33,66,0.35)" />
+      <path d="M32 20c-4-8-14-8-12-1 1 3 8 2 12 1zM32 20c4-8 14-8 12-1-1 3-8 2-12 1z" fill="#fff" />
+    </svg>
   );
 }

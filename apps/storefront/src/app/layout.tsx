@@ -12,7 +12,7 @@ const urdu = Noto_Nastaliq_Urdu({ subsets: ["arabic"], weight: ["400", "600"], v
 
 export const metadata: Metadata = {
   title: { default: `${site.name} · ${site.tagline}`, template: `%s · ${site.name}` },
-  description: "Handmade gifts from Azamgarh: black pottery, Mubarakpur silk and hand-crafted décor, delivered across the GCC.",
+  description: "Handmade gifts from Azamgarh: Nizamabad black pottery, Mubarakpur silk, hampers and hand-crafted décor, delivered across India.",
 };
 
 export const viewport: Viewport = { themeColor: "#6B2142" };
@@ -21,6 +21,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${urdu.variable}`}>
       <body>
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         <Header />
         <main>{children}</main>
         <Footer />

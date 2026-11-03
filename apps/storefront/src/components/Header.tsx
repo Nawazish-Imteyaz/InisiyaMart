@@ -8,16 +8,16 @@ const links = [
   { href: "/shop/", label: "Gifts for her" },
   { href: "/shop/", label: "Black pottery" },
   { href: "/shop/", label: "Silk & dupattas" },
-  { href: "/shop/", label: "Gift sets" },
+  { href: "/shop/", label: "Hampers" },
   { href: "/story/", label: "Our story" },
 ];
 
 export function Header() {
   return (
     <>
-      <div className="topbar">Handmade in Azamgarh · Delivered to Kuwait, Saudi Arabia, UAE, Qatar, Bahrain &amp; Oman</div>
+      <div className="topbar">✦ Handmade in Azamgarh · {site.delivery} · Gift-wrapped with love ✦</div>
       <header className="header">
-        <div className="container header-row" style={{ position: "relative" }}>
+        <div className="container header-row">
           <details className="mobile-menu">
             <summary className="icon-btn" aria-label="Menu"><MenuIcon /></summary>
             <nav aria-label="Mobile">
@@ -42,7 +42,7 @@ export function Header() {
           </nav>
 
           <div className="header-actions">
-            <a className="btn hide-sm" style={{ minBlockSize: 44, paddingInline: 18, fontSize: 14 }} href={whatsappLink("Hello Insi House! I'd like to order a gift.")} target="_blank" rel="noopener noreferrer">
+            <a className="btn btn-glow hide-sm" style={{ minBlockSize: 44, paddingInline: 18, fontSize: 14 }} href={whatsappLink("Hello Insi House! I'd like to order a gift.")} target="_blank" rel="noopener noreferrer">
               Order on WhatsApp
             </a>
             <a className="icon-btn" aria-label="Chat on WhatsApp" href={whatsappLink("Hello Insi House!")} target="_blank" rel="noopener noreferrer">

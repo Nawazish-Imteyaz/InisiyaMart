@@ -6,13 +6,18 @@ export const metadata: Metadata = { title: "Shop handmade gifts" };
 
 export default function ShopPage() {
   return (
-    <div className="container" style={{ paddingBlockEnd: 72 }}>
+    <div className="container" style={{ paddingBlockEnd: 80 }}>
       <nav aria-label="Breadcrumb" className="breadcrumb"><Link href="/">Home</Link> / Shop</nav>
-      <div className="tone-blush" style={{ borderRadius: 24, padding: "36px 32px", marginBlockEnd: 28 }}>
-        <h1 className="display" style={{ fontSize: "clamp(38px, 5vw, 52px)", color: "var(--ink)" }}>Gifts for her</h1>
-        <p style={{ margin: "8px 0 0", maxInlineSize: 640, lineHeight: 1.6 }}>
-          For sisters, mothers, friends and you. Silk she&apos;ll wear, décor she&apos;ll keep, and gift sets she&apos;ll remember.
-        </p>
+      <div className="cta" style={{ marginBlockEnd: 32 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, maxInlineSize: 680 }}>
+          <span className="eyebrow">Handmade in Azamgarh · Delivered across India</span>
+          <h1 className="display" style={{ fontSize: "clamp(40px, 5.5vw, 60px)" }}>
+            Gifts for <span className="grad-text">her</span>, and everyone you love
+          </h1>
+          <p className="muted" style={{ margin: 0, lineHeight: 1.6, fontSize: 17 }}>
+            Silk she&apos;ll wear, décor she&apos;ll keep, and hampers she&apos;ll remember. For sisters, mothers, friends and teachers.
+          </p>
+        </div>
       </div>
       <ShopGrid />
     </div>

@@ -4,11 +4,11 @@ export const site = {
   urdu: "انسی ہاؤس",
   tagline: "Handmade gifts from Azamgarh",
   taglineUrdu: "اعظم گڑھ کے ہنر کا تحفہ",
-  // TODO(owner): WhatsApp business number in international format without "+", e.g. "9198XXXXXXXX".
+  delivery: "Delivered across India",
+  // TODO(owner): WhatsApp business number with country code, no "+", e.g. "9198XXXXXXXX".
   whatsapp: "",
   // TODO(owner): business email.
   email: "",
-  countries: ["Kuwait", "Saudi Arabia", "UAE", "Qatar", "Bahrain", "Oman"],
 };
 
 /** Opens WhatsApp with a pre-filled message. Without a number set, WhatsApp lets the user pick a chat. */

@@ -8,7 +8,7 @@ const steps = [
   { n: "01", title: "Shaped by hand", text: "Clay is shaped or silk is woven by our family in Azamgarh." },
   { n: "02", title: "Finished with care", text: "Etching, polishing or embroidery takes days, not minutes." },
   { n: "03", title: "Wrapped as a gift", text: "Packed safely, with your message card inside." },
-  { n: "04", title: "Sent to the Gulf", text: "Shipped with tracking to her door, wherever she is in the GCC." },
+  { n: "04", title: "Delivered across India", text: "Shipped with tracking to her door, in any city or town in India." },
 ];
 
 export default function StoryPage() {

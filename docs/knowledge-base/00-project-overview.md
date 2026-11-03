@@ -1,52 +1,49 @@
 # 00 · Project Overview
 
 ## Vision
-Bring the handmade, culturally rich crafts of **Azamgarh, Uttar Pradesh** to gift-givers across the **GCC**,
-through a polished, Bleems-style gifting experience: browse by occasion, add a personal message, and send it
-to someone special.
+Bring the handmade, culturally rich crafts of **Azamgarh, Uttar Pradesh** to gift-givers **all over India**, through a
+colourful, smooth, Bleems-inspired gifting experience: browse by occasion, personalise, add a message, and send it to someone special.
 
 ## Who we are
-- A **family business**. Family members create the products (artisans / designers).
-- Brand name: **Insi House** (Urdu: **انسی ہاؤس**), handle/domain `insihouse`. The home region speaks **Urdu**. Named after the owner's niece
-  **Insiya** (إنسية, "warm, affectionate, close companion", from the Arabic root *uns*, meaning closeness).
-- Logo and story: **TODO(owner)**, see `08-brand-intake.md`.
+- A **family business**. Family members create the products.
+- Brand name: **Insi House** (Urdu: **انسی ہاؤس**), handle/domain `insihouse`. Named after the owner's niece **Insiya**
+  (إنسية, "warm, affectionate, close companion", from the Arabic root *uns*, closeness). Azamgarh speaks **Urdu**.
+- Final design: **Rose Plum** + festive accents (decisions 005, 006).
 
 ## Target customers
-| Segment | Why they buy | Notes |
-|---|---|---|
-| South Asian expats in GCC (India / Pakistan / Bangladesh) | Nostalgia, cultural connection, weddings, Eid | Large, high-intent segment; also comfortable in English, Hindi and Urdu |
-| GCC nationals (Kuwaiti, Saudi, Emirati…) | Unique handmade gifts, home décor, Ramadan / Eid gifting | Arabic-first UX, premium packaging matters |
-| Corporate buyers | Ramadan / Eid hampers, employee and client gifts | Bulk orders, custom branding, invoices |
-| Other expats | Distinctive décor and gifts | English-first |
-
-## Business model (initial)
-- **Direct-to-consumer (D2C)** store run by the family. One "seller" at first.
-- Built **marketplace-ready**, so later we can onboard more Azamgarh / UP artisans as vendors, like Bleems
-  onboards many shops. Bleems is a multi-vendor marketplace.
-- Revenue: product margin, gift add-ons (wrapping, cards, chocolates), express shipping fees, and corporate orders.
-
-## Key differentiator vs Bleems
-| Bleems | Us |
+| Segment | Why they buy |
 |---|---|
-| Flowers, cakes and gifts from **local** GCC shops | **Handmade cultural crafts** from Azamgarh, India |
-| Same-day / time-slot delivery | Cross-border, so ship-from-India **or** a local GCC stock hub (see decision D-001) |
-| Many vendors | Family brand first, artisan marketplace later |
-| Generic gifting | **Story-led**: every item has a craft, maker and heritage story |
+| Girls, women and students (18–35), metros & Tier-2 | Gifts for sisters, mothers, friends, teachers; décor for themselves |
+| People from Azamgarh/UP living in other cities | Nostalgia, weddings, Eid, Diwali |
+| Couples | Birthdays, anniversaries, Valentine's |
+| Corporate buyers (later) | Diwali and Eid gifting |
 
-## Critical open decisions
-| ID | Decision | Options | Recommendation |
-|---|---|---|---|
-| D-001 | Fulfilment model | (a) Ship every order from India (5–10 days) · (b) Keep stock in one GCC hub (e.g. Kuwait) for fast local delivery + ship from India for the rest · (c) Hybrid | **(c) Hybrid**: start with (a), add a Kuwait/UAE hub for best-sellers once demand is proven |
-| D-002 | Platform | Custom (Next.js + Medusa) vs hosted (Shopify) | See `05-tech-architecture.md` |
-| D-003 | Launch countries | All 6 at once vs start with 1–2 | Start with **Kuwait + UAE** (or wherever family contacts are), then expand |
-| D-004 | Legal entity | Indian exporter only vs also a GCC company | Depends on D-001; consult an accountant |
+## Business model
+- **D2C** store run by the family. Built so we can add other Azamgarh/UP artisans later (marketplace, like Bleems' shops).
+- Revenue: product margin, gift wrap & personalisation, hampers, corporate orders.
+
+## Key differentiators vs Bleems / FNP / IGP
+- **Handmade cultural crafts** (Nizamabad black pottery, Mubarakpur silk), not mass-produced gifts
+- **Story-led**: every item has a craft, maker and heritage story
+- **Vibrant, smooth, 3D** shopping experience on mobile
+- Personal touches: name engraving, Urdu/Hindi/English message cards
+
+## Open decisions
+| ID | Decision | Recommendation |
+|---|---|---|
+| D-002 | Platform for full checkout | Keep Next.js storefront; add Medusa or Shopify headless when orders grow |
+| D-004 | Legal entity & GST | Proprietorship + GST to start. Confirm with a CA |
+| D-007 | Payment gateway | Razorpay (UPI, cards, payment links) |
+| D-008 | Courier | Shiprocket aggregator |
+| D-009 | COD | Allow with a small fee + WhatsApp confirmation |
 
 ## Open questions for owner
-- [x] Brand name: Insi House (decided 2026-11-03)
-- [ ] Logo, colours, tagline (see `08-brand-intake.md`)
-- [ ] Is `insihouse.com` (or .co / .shop) available? Is `@insihouse` free on Instagram, Snapchat and TikTok?
-- [ ] Which products exactly, with prices and production capacity per month?
-- [ ] Does anyone in the family live in or have a partner in a GCC country (for local stock or returns)?
-- [ ] Is there an existing company or GST registration / IEC in India?
-- [ ] Budget and target launch date?
-- [ ] Will other artisans sell on the site later (marketplace) or only the family?
+- [x] Brand name: Insi House (2026-11-03)
+- [x] Final design: Rose Plum (2026-11-03)
+- [x] Market: all over India (2026-11-03)
+- [ ] WhatsApp business number
+- [ ] Real products: names, prices (₹), sizes, photos, monthly capacity
+- [ ] Family story and photos
+- [ ] GST / business registration status
+- [ ] Domain `insihouse.com` / `.in`. Is it available?
+- [ ] Which items to remove from the current site (owner will list)
