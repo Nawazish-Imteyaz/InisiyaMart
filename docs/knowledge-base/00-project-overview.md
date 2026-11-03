@@ -7,7 +7,7 @@ to someone special.
 
 ## Who we are
 - A **family business**. Family members create the products (artisans / designers).
-- Brand name: **Insi House** (Arabic: **بيت إنسي**), handle/domain `insihouse`. Named after the owner's niece
+- Brand name: **Insi House** (Urdu: **انسی ہاؤس**), handle/domain `insihouse`. The home region speaks **Urdu**. Named after the owner's niece
   **Insiya** (إنسية, "warm, affectionate, close companion", from the Arabic root *uns*, meaning closeness).
 - Logo and story: **TODO(owner)**, see `08-brand-intake.md`.
 

@@ -1,6 +1,8 @@
-# Project: Insi House (بيت إنسي) · Azamgarh Crafts → GCC Gifting Marketplace
+# Project: Insi House (انسی ہاؤس) · Azamgarh Crafts → GCC Gifting Marketplace
 
-**Brand:** Insi House · Arabic: بيت إنسي · domain/handle: `insihouse` (see `docs/decisions/001-brand-name.md`)
+**Brand:** Insi House · Urdu wordmark: انسی ہاؤس · domain/handle: `insihouse`
+(see `docs/decisions/001-brand-name.md`, `003-brand-identity.md`, and `docs/brand/colors-fonts.md` for logo, colours and fonts).
+Azamgarh's language is **Urdu**: use Urdu in the brand and storytelling, and Arabic for the GCC website UI.
 
 > This file loads automatically in every Claude Code session in this folder.
 > It is the **entry point**. The detailed knowledge lives in `docs/knowledge-base/`.
