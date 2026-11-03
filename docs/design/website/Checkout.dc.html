@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Checkout</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#6B2142}a:hover{color:#4A1530}
+</style>
+</helmet>
+<div style="background: #FFFAF5; color: #2B1B22; font-family: 'Manrope', sans-serif; min-width: 0">
+
+  <header style="border-bottom: 1px solid #EEDCD9">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #2B1B22">
+        <svg width="34" height="44" viewBox="0 0 120 156" fill="none" aria-hidden="true"><path d="M14 150 V62 C14 34 36 14 60 4 C84 14 106 34 106 62 V150 Z" fill="#6B2142"></path><g transform="translate(30 46) scale(0.5)"><path d="M52 13 L52 34 C52 40 30 46 24 66 C16 92 30 124 60 130 C90 124 104 92 96 66 C90 46 68 40 68 34 L68 13 Z" fill="#FFFAF5"></path><path d="M27 70 L35 62 L43 70 L51 62 L60 70 L69 62 L77 70 L85 62 L93 70" stroke="#C9A24A" stroke-width="5" stroke-linejoin="round"></path></g></svg>
+        <span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 23px; letter-spacing: 0.16em">INSI HOUSE</span>
+      </a>
+      <span style="font-size: 14px; color: #6E5A63">Secure checkout</span>
+    </div>
+  </header>
+
+  <div style="max-width: 1280px; margin: 0 auto; padding: 36px 24px 72px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+    <form style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+      <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 46px">Send your gift</h1>
+
+      <section style="background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">1 · Who is it for?</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px" role="radiogroup" aria-label="Recipient">
+          <sc-for list="{{who}}" as="w" hint-placeholder-count="2">
+            <button type="button" role="radio" aria-checked="{{w.on}}" onClick="{{w.pick}}" style="flex: 1 1 200px; min-height: 52px; border-radius: 26px; font: inherit; font-weight: 700; border: 1.5px solid {{w.border}}; background: {{w.bg}}; color: {{w.fg}}">{{w.label}}</button>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">2 · Your details</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Your name<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Email<input type="email" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">WhatsApp number<input type="tel" placeholder="+965" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+        </div>
+      </section>
+
+      <sc-if value="{{isGift}}" hint-placeholder-val="{{true}}">
+        <section style="background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 0; font-size: 18px; font-weight: 700">3 · Recipient &amp; address</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Her name<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Her phone<input type="tel" placeholder="+965" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Governorate<select style="min-height: 48px; padding: 0 12px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400; background: #FFFFFF"><option>Capital</option><option>Hawalli</option><option>Farwaniya</option><option>Ahmadi</option><option>Jahra</option><option>Mubarak Al-Kabeer</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Area<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Block<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Street<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">House / building<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600">Floor / flat (optional)<input type="text" style="min-height: 48px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit; font-weight: 400"></label>
+          </div>
+          <label style="display: flex; gap: 10px; align-items: center; font-size: 15px"><input type="checkbox" checked style="width: 20px; height: 20px"> Keep it a surprise (we only call her if the address is unclear)</label>
+        </section>
+      </sc-if>
+
+      <section style="background: #F8E8E6; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">4 · Your message card</h2>
+        <label for="msg" style="font-size: 14px; color: #6E5A63">Write in English, Arabic or Urdu. We print it on our signature card.</label>
+        <textarea id="msg" rows="4" maxlength="200" onInput="{{typed}}" placeholder="Happy birthday, my dearest sister…" style="padding: 14px; border: 1px solid #E2C6CC; border-radius: 14px; font: inherit; resize: vertical; background: #FFFFFF"></textarea>
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: 14px">
+          <label style="display: flex; gap: 10px; align-items: center"><input type="checkbox" checked style="width: 20px; height: 20px"> Hide prices on the packing slip</label>
+          <span style="color: #6E5A63">{{count}} / 200</span>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 700">5 · Payment</h2>
+        <div style="display: flex; flex-direction: column; gap: 10px" role="radiogroup" aria-label="Payment method">
+          <sc-for list="{{pay}}" as="p" hint-placeholder-count="3">
+            <button type="button" role="radio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 18px; border-radius: 14px; border: 2px solid {{p.ring}}; background: #FFFFFF; font: inherit; color: #2B1B22; text-align: left">
+              <span style="display: flex; align-items: center; gap: 12px"><span style="width: 18px; height: 18px; border-radius: 9px; border: 2px solid #6B2142; background: {{p.dot}}; box-shadow: inset 0 0 0 3px #FFFFFF"></span><b>{{p.name}}</b></span>
+              <span style="font-size: 13px; color: #6E5A63">{{p.note}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </section>
+    </form>
+
+    <aside aria-label="Order summary" style="flex: 1 1 320px; max-width: 400px; background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700">Your gift</h2>
+      <div style="display: flex; gap: 12px; align-items: center"><div style="width: 56px; height: 68px; border-radius: 28px 28px 8px 8px; background: #2B1B22"></div><div style="flex: 1; font-size: 14px"><b>Etched black pottery vase</b><br><span style="color: #6E5A63">Medium · "Sara"</span></div><span style="font-size: 14px">[Price]</span></div>
+      <div style="display: flex; gap: 12px; align-items: center"><div style="width: 56px; height: 68px; border-radius: 28px 28px 8px 8px; background: #F3D6DC"></div><div style="flex: 1; font-size: 14px"><b>Silk dupatta</b><br><span style="color: #6E5A63">Rose pink</span></div><span style="font-size: 14px">[Price]</span></div>
+      <div style="border-top: 1px solid #EEDCD9; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px">
+        <div style="display: flex; justify-content: space-between"><span>Subtotal</span><span>[Amount] KWD</span></div>
+        <div style="display: flex; justify-content: space-between"><span>Gift wrap</span><span>[Amount] KWD</span></div>
+        <div style="display: flex; justify-content: space-between"><span>Delivery</span><span>[Amount] KWD</span></div>
+      </div>
+      <div style="border-top: 1px solid #EEDCD9; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline"><b>Total</b><b style="font-size: 24px">[Total] KWD</b></div>
+      <a href="Tracking.dc.html" style="min-height: 54px; display: inline-flex; align-items: center; justify-content: center; background: #6B2142; color: #FFFAF5; border-radius: 27px; font-weight: 700; text-decoration: none; font-size: 16px">Pay &amp; send gift</a>
+      <span style="font-size: 13px; color: #6E5A63; text-align: center">Estimated arrival: [date range]</span>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { who: 'gift', pay: 'KNET', count: 0 };
+  }
+  renderVals() {
+    const who = [
+      { id: 'gift', label: 'Send as a gift' },
+      { id: 'me', label: 'Deliver to me' }
+    ].map((w) => {
+      const on = this.state.who === w.id;
+      return { ...w, on, bg: on ? '#6B2142' : '#FFFFFF', fg: on ? '#FFFAF5' : '#2B1B22', border: on ? '#6B2142' : '#E2C6CC', pick: () => this.setState({ who: w.id }) };
+    });
+    const pay = [
+      { name: 'KNET', note: 'Kuwait debit cards' },
+      { name: 'Apple Pay', note: 'Fast & secure' },
+      { name: 'Credit / debit card', note: 'Visa · Mastercard' }
+    ].map((p) => {
+      const on = this.state.pay === p.name;
+      return { ...p, on, ring: on ? '#6B2142' : '#EEDCD9', dot: on ? '#6B2142' : '#FFFFFF', pick: () => this.setState({ pay: p.name }) };
+    });
+    return {
+      who,
+      isGift: this.state.who === 'gift',
+      pay,
+      count: this.state.count,
+      typed: (e) => this.setState({ count: e.target.value.length })
+    };
+  }
+}
+</script>
+</body>
+</html>

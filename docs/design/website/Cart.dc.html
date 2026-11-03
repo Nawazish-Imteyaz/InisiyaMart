@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gift bag</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#6B2142}a:hover{color:#4A1530}
+</style>
+</helmet>
+<div style="background: #FFFAF5; color: #2B1B22; font-family: 'Manrope', sans-serif; min-width: 0">
+
+  <header style="border-bottom: 1px solid #EEDCD9">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #2B1B22">
+        <svg width="34" height="44" viewBox="0 0 120 156" fill="none" aria-hidden="true"><path d="M14 150 V62 C14 34 36 14 60 4 C84 14 106 34 106 62 V150 Z" fill="#6B2142"></path><g transform="translate(30 46) scale(0.5)"><path d="M52 13 L52 34 C52 40 30 46 24 66 C16 92 30 124 60 130 C90 124 104 92 96 66 C90 46 68 40 68 34 L68 13 Z" fill="#FFFAF5"></path><path d="M27 70 L35 62 L43 70 L51 62 L60 70 L69 62 L77 70 L85 62 L93 70" stroke="#C9A24A" stroke-width="5" stroke-linejoin="round"></path></g></svg>
+        <span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 23px; letter-spacing: 0.16em">INSI HOUSE</span>
+      </a>
+      <a href="Category.dc.html" style="font-weight: 600; font-size: 15px">← Continue shopping</a>
+    </div>
+  </header>
+
+  <div style="max-width: 1280px; margin: 0 auto; padding: 40px 24px 72px; display: flex; flex-direction: column; gap: 28px">
+    <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 48px">Your gift bag</h1>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+      <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+        <sc-for list="{{items}}" as="it" hint-placeholder-count="2">
+          <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 16px">
+            <div style="width: 110px; height: 136px; flex-shrink: 0; border-radius: 55px 55px 12px 12px; background: {{it.bg}}"></div>
+            <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-weight: 700; font-size: 17px">{{it.name}}</span>
+              <span style="font-size: 14px; color: #6E5A63">{{it.detail}}</span>
+              <span style="font-size: 14px; color: #6E5A63">{{it.extra}}</span>
+              <div style="display: flex; gap: 16px; margin-top: 6px; font-size: 14px"><a href="#">Edit</a><a href="#">Move to wishlist</a><a href="#">Remove</a></div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px">
+              <span style="font-weight: 700; font-size: 17px">[Price] KWD</span>
+              <span style="font-size: 14px; color: #6E5A63">Qty 1</span>
+            </div>
+          </div>
+        </sc-for>
+
+        <div style="background: #F8E8E6; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+            <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 28px">Make it extra special</h2>
+            <span style="font-size: 14px; color: #6E5A63">Choose a wrap</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px" role="radiogroup" aria-label="Gift wrap">
+            <sc-for list="{{wraps}}" as="w" hint-placeholder-count="3">
+              <button type="button" role="radio" aria-checked="{{w.on}}" onClick="{{w.pick}}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; border-radius: 16px; background: #FFFFFF; border: 2px solid {{w.ring}}; font: inherit; text-align: left; color: #2B1B22">
+                <span style="width: 100%; height: 64px; border-radius: 10px; background: {{w.bg}}"></span>
+                <b style="font-size: 15px">{{w.name}}</b>
+                <span style="font-size: 13px; color: #6E5A63">{{w.price}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <aside aria-label="Order summary" style="flex: 1 1 340px; max-width: 420px; background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700">Summary</h2>
+        <div style="display: flex; justify-content: space-between; font-size: 15px"><span>Items (2)</span><span>[Amount] KWD</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 15px"><span>Gift wrap</span><span>[Amount] KWD</span></div>
+        <div style="display: flex; justify-content: space-between; font-size: 15px"><span>Delivery to Kuwait</span><span>[Amount] KWD</span></div>
+        <div style="display: flex; gap: 8px">
+          <label for="promo" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Promo code</label>
+          <input id="promo" type="text" placeholder="Promo code" style="flex: 1; min-width: 0; min-height: 46px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 23px; font: inherit">
+          <button type="button" style="min-height: 46px; padding: 0 18px; border: 1.5px solid #6B2142; border-radius: 23px; background: transparent; color: #6B2142; font: inherit; font-weight: 700">Apply</button>
+        </div>
+        <div style="border-top: 1px solid #EEDCD9; padding-top: 14px; display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 17px">Total</b><b style="font-size: 24px">[Total] KWD</b></div>
+        <a href="Checkout.dc.html" style="min-height: 54px; display: inline-flex; align-items: center; justify-content: center; background: #6B2142; color: #FFFAF5; border-radius: 27px; font-weight: 700; text-decoration: none; font-size: 16px">Send this gift</a>
+        <span style="font-size: 13px; color: #6E5A63; text-align: center">KNET · Apple Pay · mada · Visa · Mastercard</span>
+      </aside>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { wrap: 'Signature plum box' };
+  }
+  renderVals() {
+    const wraps = [
+      { name: 'Signature plum box', price: '[Price] KWD', bg: '#6B2142' },
+      { name: 'Blush silk wrap', price: '[Price] KWD', bg: '#F3D6DC' },
+      { name: 'Simple kraft wrap', price: '[Price or free]', bg: '#E6D5BE' }
+    ].map((w) => {
+      const on = this.state.wrap === w.name;
+      return { ...w, on, ring: on ? '#6B2142' : '#EEDCD9', pick: () => this.setState({ wrap: w.name }) };
+    });
+    return {
+      wraps,
+      items: [
+        { name: 'Etched black pottery vase', detail: 'Medium · Name: "Sara"', extra: 'Arrives in about [X–Y] days', bg: '#2B1B22' },
+        { name: 'Silk dupatta', detail: 'Rose pink', extra: 'Ready to ship', bg: '#F3D6DC' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

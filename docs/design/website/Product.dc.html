@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Product page</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Noto+Nastaliq+Urdu:wght@400;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#6B2142}a:hover{color:#4A1530}
+</style>
+</helmet>
+<div style="background: #FFFAF5; color: #2B1B22; font-family: 'Manrope', sans-serif; min-width: 0">
+
+  <header style="border-bottom: 1px solid #EEDCD9">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #2B1B22">
+        <svg width="34" height="44" viewBox="0 0 120 156" fill="none" aria-hidden="true"><path d="M14 150 V62 C14 34 36 14 60 4 C84 14 106 34 106 62 V150 Z" fill="#6B2142"></path><g transform="translate(30 46) scale(0.5)"><path d="M52 13 L52 34 C52 40 30 46 24 66 C16 92 30 124 60 130 C90 124 104 92 96 66 C90 46 68 40 68 34 L68 13 Z" fill="#FFFAF5"></path><path d="M27 70 L35 62 L43 70 L51 62 L60 70 L69 62 L77 70 L85 62 L93 70" stroke="#C9A24A" stroke-width="5" stroke-linejoin="round"></path></g></svg>
+        <span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 23px; letter-spacing: 0.16em">INSI HOUSE</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 6px">
+        <button type="button" style="min-height: 44px; padding: 0 14px; border: 1px solid #EEDCD9; background: #FFFFFF; border-radius: 22px; font: inherit; font-size: 14px; color: #2B1B22">Kuwait · KWD</button>
+        <a href="Cart.dc.html" style="min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; background: #6B2142; color: #FFFAF5; border-radius: 22px; font-size: 14px; font-weight: 600; text-decoration: none">Gift bag (2)</a>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 1280px; margin: 0 auto; padding: 24px 24px 72px; display: flex; flex-direction: column; gap: 40px">
+    <nav aria-label="Breadcrumb" style="font-size: 13px; color: #6E5A63"><a href="Main.dc.html" style="color: #6E5A63">Home</a> / <a href="Category.dc.html" style="color: #6E5A63">Black pottery</a> / Etched black pottery vase</nav>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start">
+      <div style="flex: 1 1 480px; min-width: 0; display: flex; gap: 14px">
+        <div style="display: flex; flex-direction: column; gap: 12px" role="group" aria-label="Photos">
+          <sc-for list="{{thumbs}}" as="t" hint-placeholder-count="4">
+            <button type="button" onClick="{{t.pick}}" aria-label="{{t.label}}" style="width: 76px; height: 92px; border-radius: 12px; background: {{t.bg}}; border: 2px solid {{t.ring}}; padding: 0; font-size: 10px; color: {{t.fg}}">{{t.short}}</button>
+          </sc-for>
+        </div>
+        <div style="flex: 1; min-width: 0; aspect-ratio: 4 / 5; border-radius: 999px 999px 24px 24px; background: {{main.bg}}; color: {{main.fg}}; display: flex; align-items: center; justify-content: center; text-align: center; padding: 40px; font-size: 14px">[{{main.label}}]</div>
+      </div>
+
+      <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <span style="background: #F8E8E6; color: #6B2142; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 12px; border-radius: 14px">Handmade</span>
+          <span style="background: #F8E8E6; color: #6B2142; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 12px; border-radius: 14px">Nafees collection</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 46px; line-height: 1.05">Etched black pottery vase</h1>
+          <a href="Story.dc.html" style="font-size: 15px">Nizamabad black pottery · made by [maker name]</a>
+        </div>
+        <div style="display: flex; align-items: baseline; gap: 12px">
+          <span style="font-size: 30px; font-weight: 700">[Price] KWD</span>
+          <span style="font-size: 14px; color: #6E5A63">Delivery shown at checkout</span>
+        </div>
+        <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #6E5A63">[Short product description: shape, size, the silver-etched pattern, and why it makes a beautiful gift.]</p>
+
+        <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="font-weight: 700; font-size: 15px; margin-bottom: 10px">Size</legend>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px">
+            <sc-for list="{{sizes}}" as="s" hint-placeholder-count="3">
+              <button type="button" onClick="{{s.pick}}" aria-pressed="{{s.on}}" style="min-height: 44px; min-width: 88px; padding: 0 16px; border-radius: 22px; font: inherit; font-size: 14px; font-weight: 600; border: 1.5px solid {{s.border}}; background: {{s.bg}}; color: {{s.fg}}">{{s.label}}</button>
+            </sc-for>
+          </div>
+        </fieldset>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <label for="engrave" style="font-weight: 700; font-size: 15px">Add a name (optional)</label>
+          <input id="engrave" type="text" placeholder="e.g. Sara, Amna, Fatima" style="min-height: 48px; padding: 0 16px; border: 1px solid #E2C6CC; border-radius: 14px; font: inherit; background: #FFFFFF">
+          <span style="font-size: 13px; color: #6E5A63">Hand-etched in English, Urdu or Arabic. Adds [X] days.</span>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 12px; background: #F8E8E6; padding: 14px 16px; border-radius: 14px; font-size: 15px">
+          <input type="checkbox" checked="{{wrap}}" onChange="{{toggleWrap}}" style="width: 20px; height: 20px">
+          <span style="display: flex; flex-direction: column"><b>Gift wrap + message card</b><span style="font-size: 13px; color: #6E5A63">Signature plum box with a handwritten-style card · [Price] KWD</span></span>
+        </label>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+          <div style="display: flex; align-items: center; border: 1px solid #E2C6CC; border-radius: 26px; background: #FFFFFF">
+            <button type="button" aria-label="Decrease quantity" onClick="{{dec}}" style="width: 48px; height: 50px; border: none; background: transparent; font: inherit; font-size: 20px; color: #2B1B22">−</button>
+            <span aria-live="polite" style="min-width: 28px; text-align: center; font-weight: 700">{{qty}}</span>
+            <button type="button" aria-label="Increase quantity" onClick="{{inc}}" style="width: 48px; height: 50px; border: none; background: transparent; font: inherit; font-size: 20px; color: #2B1B22">+</button>
+          </div>
+          <a href="Cart.dc.html" style="flex: 1 1 200px; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; background: #6B2142; color: #FFFAF5; border-radius: 26px; font-weight: 700; text-decoration: none">Add to gift bag</a>
+          <button type="button" aria-label="Add to wishlist" style="width: 52px; height: 52px; border: 1.5px solid #E2C6CC; border-radius: 26px; background: #FFFFFF; color: #6B2142; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"></path></svg></button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; border: 1px solid #EEDCD9; border-radius: 16px; padding: 16px; font-size: 14px">
+          <div style="display: flex; justify-content: space-between; gap: 12px"><span>Delivery to <b>Kuwait</b></span><a href="#">Change</a></div>
+          <span style="color: #6E5A63">Arrives in about [X–Y] days · tracking on WhatsApp</span>
+          <span style="color: #6E5A63">Fragile item: double-boxed for safe travel</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; border-top: 1px solid #EEDCD9">
+          <sc-for list="{{panels}}" as="d" hint-placeholder-count="4">
+            <div style="border-bottom: 1px solid #EEDCD9">
+              <button type="button" onClick="{{d.pick}}" aria-expanded="{{d.open}}" style="width: 100%; min-height: 56px; display: flex; justify-content: space-between; align-items: center; border: none; background: transparent; font: inherit; font-size: 16px; font-weight: 700; color: #2B1B22; padding: 0">{{d.title}}<span aria-hidden="true">{{d.sign}}</span></button>
+              <sc-if value="{{d.open}}" hint-placeholder-val="{{false}}">
+                <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.7; color: #6E5A63">{{d.text}}</p>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <section style="display: flex; flex-direction: column; gap: 20px">
+      <h2 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 36px">Complete the gift</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px">
+        <sc-for list="{{addons}}" as="a" hint-placeholder-count="4">
+          <div style="display: flex; gap: 14px; align-items: center; background: #FFFFFF; border: 1px solid #EEDCD9; border-radius: 16px; padding: 12px">
+            <div style="width: 72px; height: 72px; flex-shrink: 0; border-radius: 12px; background: {{a.bg}}"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+              <span style="font-weight: 600; font-size: 15px">{{a.name}}</span>
+              <span style="font-size: 13px; color: #6E5A63">[Price] KWD</span>
+            </div>
+            <button type="button" aria-label="Add {{a.name}}" style="width: 44px; height: 44px; border-radius: 22px; border: 1.5px solid #6B2142; background: transparent; color: #6B2142; font-size: 20px">+</button>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { photo: 0, size: 'Medium', wrap: true, qty: 1, open: 'Story of this craft' };
+  }
+  renderVals() {
+    const photos = [
+      { label: 'Main photo: vase on ivory background', short: 'Main', bg: '#2B1B22', fg: '#F3D6DC' },
+      { label: 'Close-up of silver etching', short: 'Detail', bg: '#4A3640', fg: '#F3D6DC' },
+      { label: 'Vase styled with flowers at home', short: 'Styled', bg: '#F3D6DC', fg: '#6E5A63' },
+      { label: 'In the plum gift box', short: 'Boxed', bg: '#6B2142', fg: '#F3D6DC' }
+    ];
+    const thumbs = photos.map((p, i) => ({
+      ...p,
+      ring: this.state.photo === i ? '#6B2142' : 'transparent',
+      pick: () => this.setState({ photo: i })
+    }));
+    const sizes = ['Small', 'Medium', 'Large'].map((label) => {
+      const on = this.state.size === label;
+      return { label, on, bg: on ? '#6B2142' : '#FFFFFF', fg: on ? '#FFFAF5' : '#2B1B22', border: on ? '#6B2142' : '#E2C6CC', pick: () => this.setState({ size: label }) };
+    });
+    const texts = [
+      ['Story of this craft', 'Nizamabad, a small town in Azamgarh, is known for its glossy black clay pottery. Patterns are etched by hand and filled with silver-coloured powder before a final firing. [Add your family’s own story here.]'],
+      ['Materials & size', '[Material] · [Height × width] cm · [Weight] g. Every piece is handmade, so small variations are natural.'],
+      ['Care', 'Wipe with a soft dry cloth. Decorative use only: not for water or food. [Confirm with maker.]'],
+      ['Shipping & returns', 'Ships from Azamgarh with tracking. Delivery in about [X–Y] days to the GCC. Damaged on arrival? Send us a photo within 48 hours.']
+    ];
+    const panels = texts.map(([title, text]) => {
+      const open = this.state.open === title;
+      return { title, text, open, sign: open ? '−' : '+', pick: () => this.setState({ open: open ? '' : title }) };
+    });
+    return {
+      thumbs,
+      main: photos[this.state.photo],
+      sizes,
+      wrap: this.state.wrap,
+      toggleWrap: () => this.setState({ wrap: !this.state.wrap }),
+      qty: this.state.qty,
+      inc: () => this.setState({ qty: this.state.qty + 1 }),
+      dec: () => this.setState({ qty: Math.max(1, this.state.qty - 1) }),
+      panels,
+      addons: [
+        { name: 'Silk dupatta', bg: '#F3D6DC' },
+        { name: 'Pottery diya pair', bg: '#2B1B22' },
+        { name: 'Greeting card', bg: '#E9D8E0' },
+        { name: 'Silk gift pouch', bg: '#C9A24A' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

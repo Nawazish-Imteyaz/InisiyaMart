@@ -22,15 +22,23 @@ A gold mehrab (arch) frame with a black-pottery surahi inside. The surahi has a 
 - Versions: full lockup (dark), light lockup, app icon (rounded square), round social avatar, gift tag
 - Status: concept. Needs a final vector clean-up before printing
 
-## Colours
+## Website colours (final, tuned for women and students, decision 004)
+Soft, feminine and still premium. Plum leads, blush and rose bring warmth, and gold stays a small accent.
+
 | Name | Hex | Use |
 |---|---|---|
-| Kohl | #17140F | Primary dark, text, hero backgrounds |
-| Zari | #C9A24A | Gold accent, logo arch, highlights (never small text on ivory) |
-| Ivory | #F6F0E4 | Page background |
-| Plum | #5A1E33 | Secondary: buttons, gift tags, festive campaigns |
-| Silver | #E4E1DC | Etching detail, borders, light surfaces |
-| Smoke | #5E584F | Secondary text on ivory |
+| Berry Plum | #6B2142 | Primary: buttons, top bar, links, logo arch |
+| Dusty Rose | #D4899B | Decorative accent, images, "current step" |
+| Rose Tint | #F3D6DC | Image backgrounds, soft cards |
+| Blush | #F8E8E6 | Section backgrounds, gift options |
+| Ivory | #FFFAF5 | Page background |
+| Zari Gold | #C9A24A | Logo etching, Urdu tagline on plum (decorative only) |
+| Ink | #2B1B22 | Body text, footer, black-pottery images |
+| Mauve Grey | #6E5A63 | Secondary text (passes contrast on ivory and blush) |
+| Line | #EEDCD9 | Borders and dividers |
+
+Earlier concept palette (Kohl #17140F, Ivory #F6F0E4, Plum #5A1E33, Silver #E4E1DC) is kept for packaging and
+black-pottery photography backgrounds.
 
 ## Fonts (all Google Fonts, free)
 | Role | Font |

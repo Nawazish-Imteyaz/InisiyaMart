@@ -30,7 +30,10 @@ family business, to customers in **all six GCC countries**: Kuwait, Saudi Arabia
 | `docs/knowledge-base/08-brand-intake.md` | What the owner must provide (name, logo, products…) |
 | `docs/knowledge-base/09-glossary.md` | Terms used across the docs |
 | `docs/brand/` | Logo files, colours, fonts, photos supplied by the owner |
+| `docs/design/` | Website page designs (9 screens) and brand concepts, with live links |
 | `docs/decisions/` | Decision log (one file per decision) |
+
+**Main audience:** girls, women and students (gifting for sisters, mothers and friends). The design is soft, feminine and premium. See decision 004.
 
 ## Working rules for Claude
 1. **Original brand only.** Use Bleems and the other reference sites for patterns, never for assets or text.

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gifts for her</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Noto+Nastaliq+Urdu:wght@400;600&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#6B2142}a:hover{color:#4A1530}
+</style>
+</helmet>
+<div style="background: #FFFAF5; color: #2B1B22; font-family: 'Manrope', sans-serif; min-width: 0">
+
+  <header style="border-bottom: 1px solid #EEDCD9; background: #FFFAF5">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+      <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #2B1B22">
+        <svg width="34" height="44" viewBox="0 0 120 156" fill="none" aria-hidden="true"><path d="M14 150 V62 C14 34 36 14 60 4 C84 14 106 34 106 62 V150 Z" fill="#6B2142"></path><g transform="translate(30 46) scale(0.5)"><path d="M52 13 L52 34 C52 40 30 46 24 66 C16 92 30 124 60 130 C90 124 104 92 96 66 C90 46 68 40 68 34 L68 13 Z" fill="#FFFAF5"></path><path d="M27 70 L35 62 L43 70 L51 62 L60 70 L69 62 L77 70 L85 62 L93 70" stroke="#C9A24A" stroke-width="5" stroke-linejoin="round"></path></g></svg>
+        <span style="font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 23px; letter-spacing: 0.16em">INSI HOUSE</span>
+      </a>
+      <label for="cat-search" style="flex: 1 1 280px; max-width: 460px; display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 16px; border: 1px solid #EEDCD9; border-radius: 23px; background: #FFFFFF; color: #6E5A63">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <input id="cat-search" type="search" placeholder="Search gifts, pottery, dupattas…" aria-label="Search" style="flex: 1; border: none; outline: none; font: inherit; background: transparent; min-width: 0">
+      </label>
+      <div style="display: flex; align-items: center; gap: 6px">
+        <button type="button" style="min-height: 44px; padding: 0 14px; border: 1px solid #EEDCD9; background: #FFFFFF; border-radius: 22px; font: inherit; font-size: 14px; color: #2B1B22">Kuwait · KWD</button>
+        <a href="Cart.dc.html" style="min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; background: #6B2142; color: #FFFAF5; border-radius: 22px; font-size: 14px; font-weight: 600; text-decoration: none">Gift bag (2)</a>
+      </div>
+    </div>
+  </header>
+
+  <div style="max-width: 1280px; margin: 0 auto; padding: 28px 24px 72px; display: flex; flex-direction: column; gap: 24px">
+    <nav aria-label="Breadcrumb" style="font-size: 13px; color: #6E5A63"><a href="Main.dc.html" style="color: #6E5A63">Home</a> / Gifts for her</nav>
+
+    <div style="background: #F8E8E6; border-radius: 24px; padding: 36px 40px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px">
+      <div style="display: flex; flex-direction: column; gap: 8px; max-width: 640px">
+        <h1 style="margin: 0; font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 52px; line-height: 1">Gifts for her</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #6E5A63">For sisters, mothers, friends and you. Silk she'll wear, décor she'll keep, and gift sets she'll remember.</p>
+      </div>
+      <span style="font-size: 14px; color: #6E5A63">[Number] gifts</span>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px" role="group" aria-label="Quick filters">
+      <sc-for list="{{chips}}" as="c" hint-placeholder-count="6">
+        <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="min-height: 44px; padding: 0 18px; border-radius: 22px; font: inherit; font-size: 14px; font-weight: 600; border: 1.5px solid {{c.border}}; background: {{c.bg}}; color: {{c.fg}}">{{c.label}}</button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+      <aside aria-label="Filters" style="flex: 1 1 240px; max-width: 280px; display: flex; flex-direction: column; gap: 24px; font-size: 15px">
+        <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="font-weight: 700; margin-bottom: 10px">Craft</legend>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox" checked> Black pottery</label>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Silk &amp; dupattas</label>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Embroidery</label>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Calligraphy art</label>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Gift sets</label>
+        </fieldset>
+        <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="font-weight: 700; margin-bottom: 10px">Colour</legend>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px">
+            <button type="button" aria-label="Black" style="width: 32px; height: 32px; border-radius: 16px; background: #2B1B22; border: 2px solid #FFFAF5; box-shadow: 0 0 0 1px #E2C6CC"></button>
+            <button type="button" aria-label="Rose" style="width: 32px; height: 32px; border-radius: 16px; background: #D4899B; border: 2px solid #FFFAF5; box-shadow: 0 0 0 1px #E2C6CC"></button>
+            <button type="button" aria-label="Plum" style="width: 32px; height: 32px; border-radius: 16px; background: #6B2142; border: 2px solid #FFFAF5; box-shadow: 0 0 0 1px #E2C6CC"></button>
+            <button type="button" aria-label="Gold" style="width: 32px; height: 32px; border-radius: 16px; background: #C9A24A; border: 2px solid #FFFAF5; box-shadow: 0 0 0 1px #E2C6CC"></button>
+            <button type="button" aria-label="Ivory" style="width: 32px; height: 32px; border-radius: 16px; background: #F6F0E4; border: 2px solid #FFFAF5; box-shadow: 0 0 0 1px #E2C6CC"></button>
+          </div>
+        </fieldset>
+        <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="font-weight: 700; margin-bottom: 10px">Price (KWD)</legend>
+          <div style="display: flex; gap: 10px">
+            <label style="flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #6E5A63">Min<input type="number" placeholder="0" style="min-height: 44px; padding: 0 12px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit"></label>
+            <label style="flex: 1; display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #6E5A63">Max<input type="number" placeholder="Any" style="min-height: 44px; padding: 0 12px; border: 1px solid #E2C6CC; border-radius: 12px; font: inherit"></label>
+          </div>
+        </fieldset>
+        <fieldset style="border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px">
+          <legend style="font-weight: 700; margin-bottom: 10px">Delivery</legend>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Ready to ship</label>
+          <label style="display: flex; gap: 10px; align-items: center; min-height: 32px"><input type="checkbox"> Can be personalised</label>
+        </fieldset>
+      </aside>
+
+      <div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+          <span style="font-size: 14px; color: #6E5A63">Showing handmade gifts · prices in KWD</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 14px">Sort by
+            <select style="min-height: 44px; padding: 0 14px; border: 1px solid #E2C6CC; border-radius: 22px; font: inherit; background: #FFFFFF">
+              <option>Most loved</option><option>Newest</option><option>Price: low to high</option><option>Price: high to low</option>
+            </select>
+          </label>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px 22px">
+          <sc-for list="{{products}}" as="p" hint-placeholder-count="9">
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <a href="Product.dc.html" style="position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 5; border-radius: 18px; background: {{p.bg}}; color: {{p.fg}}; font-size: 12px; text-decoration: none; text-align: center; padding: 16px">[{{p.name}} photo]
+                <span style="position: absolute; top: 12px; left: 12px; background: #FFFAF5; color: #6B2142; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 10px; border-radius: 12px">{{p.badge}}</span>
+              </a>
+              <a href="Product.dc.html" style="color: #2B1B22; text-decoration: none; font-weight: 600; font-size: 16px">{{p.name}}</a>
+              <span style="font-size: 13px; color: #6E5A63; margin-top: -6px">{{p.craft}}</span>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+                <span style="font-size: 16px; font-weight: 700">[Price] KWD</span>
+                <a href="Cart.dc.html" style="min-height: 40px; padding: 0 14px; display: inline-flex; align-items: center; border: 1.5px solid #6B2142; color: #6B2142; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none">Add</a>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display: flex; justify-content: center; padding-top: 12px">
+          <button type="button" style="min-height: 50px; padding: 0 32px; border: 1.5px solid #6B2142; background: transparent; color: #6B2142; border-radius: 25px; font: inherit; font-weight: 600">Show more gifts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { chip: 'All' };
+  }
+  renderVals() {
+    const labels = ['All', 'Birthday', 'Eid', 'Wedding & Nikah', "Mother's Day", 'Under [budget] KWD', 'Personalised'];
+    const chips = labels.map((label) => {
+      const on = this.state.chip === label;
+      return {
+        label,
+        on,
+        bg: on ? '#6B2142' : '#FFFFFF',
+        fg: on ? '#FFFAF5' : '#2B1B22',
+        border: on ? '#6B2142' : '#EEDCD9',
+        pick: () => this.setState({ chip: label })
+      };
+    });
+    return {
+      chips,
+      products: [
+        { name: 'Etched black pottery vase', craft: 'Nizamabad pottery', badge: 'Handmade', bg: '#2B1B22', fg: '#F3D6DC' },
+        { name: 'Silk dupatta', craft: 'Mubarakpur weave', badge: 'Handmade', bg: '#F3D6DC', fg: '#6E5A63' },
+        { name: 'Eid gift hamper', craft: 'Tohfa collection', badge: 'Gift set', bg: '#F8E8E6', fg: '#6E5A63' },
+        { name: 'Calligraphy wall frame', craft: 'Zauq collection', badge: 'Personalised', bg: '#E9D8E0', fg: '#6E5A63' },
+        { name: 'Black pottery tea set', craft: 'Nizamabad pottery', badge: 'Handmade', bg: '#2B1B22', fg: '#F3D6DC' },
+        { name: 'Embroidered clutch', craft: 'Hand embroidery', badge: 'Handmade', bg: '#D4899B', fg: '#2B1B22' },
+        { name: 'Silk cushion covers', craft: 'Mubarakpur weave', badge: 'Handmade', bg: '#F3D6DC', fg: '#6E5A63' },
+        { name: 'Pottery diya set', craft: 'Nafees collection', badge: 'Gift set', bg: '#6B2142', fg: '#F3D6DC' },
+        { name: 'Name calligraphy plate', craft: 'Khuloos collection', badge: 'Personalised', bg: '#E9D8E0', fg: '#6E5A63' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
