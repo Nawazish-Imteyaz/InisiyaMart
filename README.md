@@ -9,5 +9,9 @@ Handmade gifts from Azamgarh, delivered across the GCC (Kuwait, Saudi Arabia, UA
 - `docs/decisions/`: decision log
 - `docs/brand/`: logo, colours, photos
 
+## Live preview (for family testing)
+**https://nawazish-imteyaz.github.io/InisiyaMart/** · choose a design at **/designs/**
+(auto-deployed from `apps/storefront` by `.github/workflows/pages.yml` on every push to `main`)
+
 ## Status
 Phase 0–1.5: knowledge base done; next is the free catalogue website on Cloudflare (see `docs/decisions/002-hosting-start-on-cloudflare.md`).

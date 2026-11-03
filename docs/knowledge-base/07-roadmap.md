@@ -14,7 +14,11 @@
 - [ ] Product photography for the first 20–40 products
 
 ## Phase 1.5: Free catalogue site on Cloudflare (see decision 002)
-- [ ] Next.js storefront on Cloudflare (OpenNext), EN/AR, country prices
+- [x] Next.js static storefront (`apps/storefront`): Home, Shop, 9 product pages, Story, Designs (2026-11-03)
+- [x] Public preview on GitHub Pages with a 4-design switcher + WhatsApp voting for family
+- [ ] Family picks the final design → remove the other themes and the picker
+- [ ] Move hosting to Cloudflare Pages + insihouse.com domain
+- [ ] Arabic version, country prices
 - [ ] Product photos in R2, product data in D1 / CMS
 - [ ] "Order on WhatsApp" + order-request form, payment by payment link
 - [ ] Craft story pages, About, policies
