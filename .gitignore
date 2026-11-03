@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Builds
+.next/
+.open-next/
+out/
+dist/
+build/
+.turbo/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Local Claude settings
+.claude/settings.local.json
