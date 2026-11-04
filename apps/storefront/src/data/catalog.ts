@@ -43,6 +43,11 @@ export interface Settings {
   announcement: string;
   delivery: string;
   instagram: string;
+  /** Merchant UPI ID for the "Pay by UPI" button. Empty = pay link sent on WhatsApp. */
+  upi_id: string;
+  /** Delivery charge in ₹ as text; "" = not set (confirmed on WhatsApp). */
+  shipping_fee: string;
+  free_shipping_above: string;
 }
 
 interface LiveCatalog {
@@ -96,6 +101,9 @@ export const settings: Settings = {
   announcement: "✦ Handmade in Azamgarh · Delivered across India · Gift-wrapped with love ✦",
   delivery: "Delivered across India",
   instagram: "",
+  upi_id: "",
+  shipping_fee: "",
+  free_shipping_above: "",
   ...Object.fromEntries(Object.entries(live?.settings ?? {}).filter(([, v]) => typeof v === "string" && v !== "")),
 };
 

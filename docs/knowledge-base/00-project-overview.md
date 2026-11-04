@@ -47,3 +47,16 @@ colourful, smooth, Bleems-inspired gifting experience: browse by occasion, perso
 - [ ] GST / business registration status
 - [ ] Domain `insihouse.com` / `.in`. Is it available?
 - [ ] Which items to remove from the current site (owner will list)
+
+### Open questions from the website policies (added 2026-11-04)
+Shown on the site as highlighted placeholders until answered (decision 008):
+- [ ] Dispatch time (e.g. 2–4 working days)
+- [ ] Damaged-in-transit: reporting window and what we offer (replacement / refund)
+- [ ] Cancellation before dispatch: full refund?
+- [ ] Returns after delivery: allowed? window? who pays return shipping?
+- [ ] Refund time (days)
+- [ ] Privacy requests: reply within how many days
+- [ ] Grievance officer name and contact
+- [ ] Legal business name, address, GSTIN (Terms page)
+- [ ] Delivery charge and free-delivery threshold (admin Settings)
+- [ ] Merchant UPI ID (admin Settings)

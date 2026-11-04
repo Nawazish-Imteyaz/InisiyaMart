@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoMark } from "./Logo";
 import { ChatIcon, MenuIcon } from "./Icons";
+import { CartButton } from "./CartButton";
 import { site, whatsappLink } from "@/lib/site";
 import { categories, shopLink } from "@/data/catalog";
 
@@ -8,6 +9,7 @@ const links = [
   { href: "/shop/", label: "Shop all" },
   ...categories.slice(0, 4).map((c) => ({ href: shopLink(c.slug), label: c.name })),
   { href: "/story/", label: "Our story" },
+  { href: "/track/", label: "Track order", mobileOnly: true },
 ];
 
 export function Header() {
@@ -34,7 +36,7 @@ export function Header() {
           </Link>
 
           <nav className="nav desktop" aria-label="Main">
-            {links.map((l) => (
+            {links.filter((l) => !("mobileOnly" in l)).map((l) => (
               <Link key={l.label} href={l.href}>{l.label}</Link>
             ))}
           </nav>
@@ -46,6 +48,7 @@ export function Header() {
             <a className="icon-btn" aria-label="Chat on WhatsApp" href={whatsappLink("Hello Insi House!")} target="_blank" rel="noopener noreferrer">
               <ChatIcon size={22} />
             </a>
+            <CartButton />
           </div>
         </div>
       </header>

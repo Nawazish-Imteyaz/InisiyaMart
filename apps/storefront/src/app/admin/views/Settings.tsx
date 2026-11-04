@@ -5,7 +5,7 @@ import { api } from "../lib";
 import { useAdmin } from "../AdminApp";
 import { Field, Loading, PageHead } from "./ui";
 
-type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string };
+type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string; shipping_fee: string; free_shipping_above: string };
 
 export function SettingsView() {
   const { user, toast, fail } = useAdmin();
@@ -48,8 +48,14 @@ export function SettingsView() {
             <Field label="Instagram username" hint="Without @. Shown in the footer.">
               <input maxLength={60} value={s.instagram} onChange={(e) => set("instagram", e.target.value)} />
             </Field>
-            <Field label="UPI ID for payments" hint="For example insihouse@ybl. Saved for “Pay by UPI” later; not shown on the website yet.">
+            <Field label="UPI ID for payments" hint="Use a merchant UPI ID (PhonePe / Paytm / GPay for Business), e.g. insihouse@ybl. Customers see a “Pay by UPI” button after ordering. Empty = you send the payment link on WhatsApp.">
               <input maxLength={80} value={s.upi_id} onChange={(e) => set("upi_id", e.target.value)} />
+            </Field>
+            <Field label="Delivery charge (₹)" hint="Added to every website order. Leave empty if you confirm delivery charges on WhatsApp.">
+              <input inputMode="numeric" maxLength={6} value={s.shipping_fee} onChange={(e) => set("shipping_fee", e.target.value.replace(/[^0-9]/g, ""))} placeholder="e.g. 80" />
+            </Field>
+            <Field label="Free delivery above (₹)" hint="Orders at or above this amount get free delivery. Leave empty for no free delivery.">
+              <input inputMode="numeric" maxLength={7} value={s.free_shipping_above} onChange={(e) => set("free_shipping_above", e.target.value.replace(/[^0-9]/g, ""))} placeholder="e.g. 1999" />
             </Field>
             <Field label="Announcement bar (top of every page)" wide hint="Leave empty to hide it. E.g. “✦ Diwali orders close on 25 Oct ✦”">
               <input maxLength={160} value={s.announcement} onChange={(e) => set("announcement", e.target.value)} />

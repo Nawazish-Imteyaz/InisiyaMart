@@ -151,4 +151,4 @@ export async function setSetting(db: D1Database, key: string, value: string): Pr
 }
 
 /** Public settings shown on the website. Keys starting with "_" are internal. */
-export const PUBLIC_SETTINGS = ["whatsapp", "email", "announcement", "delivery", "instagram"] as const;
+export const PUBLIC_SETTINGS = ["whatsapp", "email", "announcement", "delivery", "instagram", "upi_id", "shipping_fee", "free_shipping_above"] as const;

@@ -26,7 +26,11 @@ export function Footer() {
           </nav>
           <div className="footer-col">
             <b>Order &amp; help</b>
-            <span>Order on WhatsApp and pay easily by UPI. We confirm price and delivery date for your PIN code.</span>
+            <span>Order online or on WhatsApp and pay easily by UPI.</span>
+            <Link href="/track/">Track your order</Link>
+            <Link href="/policies/shipping-returns/">Shipping &amp; returns</Link>
+            <Link href="/policies/privacy/">Privacy policy</Link>
+            <Link href="/policies/terms/">Terms of sale</Link>
             <a className="btn btn-light" style={{ alignSelf: "flex-start", minBlockSize: 44, paddingInline: 20, fontSize: 14 }} href={whatsappLink("Hello Insi House!")} target="_blank" rel="noopener noreferrer">
               <ChatIcon size={18} /> Chat on WhatsApp
             </a>
@@ -36,7 +40,7 @@ export function Footer() {
         </div>
         <div className="footer-bottom">
           <span>© {new Date().getFullYear()} {site.name} · Made with love in Azamgarh, Uttar Pradesh</span>
-          <span>UPI · Cards · Net banking</span>
+          <span>Pay by UPI · GPay · PhonePe · Paytm</span>
         </div>
       </div>
     </footer>

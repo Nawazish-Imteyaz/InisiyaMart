@@ -512,7 +512,7 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
     if (status && (ORDER_STATUS as readonly string[]).includes(status)) { where.push("status = ?"); vals.push(status); }
     if (q) { where.push("(number LIKE ? OR customer_name LIKE ? OR phone LIKE ? OR pincode LIKE ?)"); vals.push(...Array(4).fill(`%${q}%`)); }
     const r = await db
-      .prepare(`SELECT id, number, customer_name, phone, city, pincode, total, status, payment_status, courier, awb, created_at FROM orders ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY id DESC LIMIT 300`)
+      .prepare(`SELECT id, number, customer_name, phone, city, pincode, total, status, payment_status, payment_ref, courier, awb, source, created_at FROM orders ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY id DESC LIMIT 300`)
       .bind(...vals)
       .all();
     return json({ orders: r.results });
@@ -615,7 +615,7 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
 
 async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
   const { env, request: req } = ctx;
-  const keys = [...PUBLIC_SETTINGS, "upi_id"] as const;
+  const keys = PUBLIC_SETTINGS;
   if (m === "GET") {
     const r = await env.DB.prepare(`SELECT key, value FROM settings WHERE key IN (${keys.map(() => "?").join(",")})`).bind(...keys).all<{ key: string; value: string }>();
     const out: Record<string, string> = Object.fromEntries(keys.map((k) => [k, ""]));
@@ -643,6 +643,12 @@ async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
       const u = str(body.upi_id, 80, "UPI ID");
       if (u && !/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(u)) throw new HttpError(400, "UPI ID looks wrong, e.g. insihouse@ybl");
       v.upi_id = u;
+    }
+    for (const k of ["shipping_fee", "free_shipping_above"] as const) {
+      if (body[k] === undefined) continue;
+      const n = String(body[k] ?? "").replace(/[^0-9]/g, "");
+      if (n && Number(n) > 100_000) throw new HttpError(400, "Delivery amounts look too high");
+      v[k] = n;
     }
     for (const [k, val] of Object.entries(v)) await setSetting(env.DB, k, val);
     await log(env.DB, user, "Updated settings", Object.keys(v).join(", "));

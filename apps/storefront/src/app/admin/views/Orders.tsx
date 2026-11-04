@@ -7,12 +7,12 @@ import { Empty, ErrorBox, Field, Loading, PageHead, useLoad } from "./ui";
 
 interface OrderRow {
   id: number; number: string; customer_name: string; phone: string; city: string; pincode: string; total: number;
-  status: string; payment_status: string; courier: string; awb: string; created_at: string;
+  status: string; payment_status: string; courier: string; awb: string; created_at: string; source: string; payment_ref?: string;
 }
 interface Item { productId: number | null; name: string; qty: number; priceInr: number }
 interface Order extends Omit<OrderRow, "items"> {
   email: string; address: string; state: string; items: Item[]; subtotal: number; shipping: number; discount: number;
-  payment_ref: string; tracking_url: string; notes: string; source: string; updated_at: string;
+  payment_ref: string; tracking_url: string; notes: string; source: string; updated_at: string; gift_message: string;
 }
 interface Event { id: number; status: string; note: string; user_name: string; created_at: string }
 
@@ -65,10 +65,10 @@ export function OrderList() {
                 const s = statusLabel(o.status);
                 return (
                   <tr key={o.id} className="adm-click" onClick={() => go(`/orders/${o.id}`)}>
-                    <td><a href={`#/orders/${o.id}`}><b>{o.number}</b></a><small className="adm-block adm-muted">{when(o.created_at)}</small></td>
+                    <td><a href={`#/orders/${o.id}`}><b>{o.number}</b></a>{o.source === "website" && <span className="adm-tag">Website</span>}<small className="adm-block adm-muted">{when(o.created_at)}</small></td>
                     <td>{o.customer_name}<small className="adm-block adm-muted">{[o.city, o.pincode].filter(Boolean).join(" · ") || o.phone}</small></td>
                     <td><b>{rupees(o.total)}</b></td>
-                    <td><span className={`adm-pay p-${o.payment_status}`}>{payLabel(o.payment_status)}</span></td>
+                    <td><span className={`adm-pay p-${o.payment_status}`}>{payLabel(o.payment_status)}</span>{o.payment_status === "pending" && o.payment_ref && <small className="adm-block adm-pay p-pending">UTR sent: check bank</small>}</td>
                     <td><span className="adm-status" style={{ background: s.color }}>{s.label}</span>{o.awb && <small className="adm-block adm-muted">{o.courier} {o.awb}</small>}</td>
                   </tr>
                 );
@@ -221,6 +221,12 @@ export function OrderView({ id }: { id: number }) {
               </Field>
             </div>
           </section>
+          {data.order.gift_message && (
+            <section className="adm-card gift-card">
+              <h2>Gift message for the card</h2>
+              <p style={{ margin: 0, whiteSpace: "pre-line", fontSize: 16 }}>{data.order.gift_message}</p>
+            </section>
+          )}
           <section className="adm-card">
             <h2>Notes</h2>
             <Field label="Private notes (only for your team)" wide>

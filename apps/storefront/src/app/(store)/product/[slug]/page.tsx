@@ -5,6 +5,7 @@ import { formatInr, formatPrice, getProduct, products } from "@/data/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductArt } from "@/components/ProductArt";
 import { PincodeCheck } from "@/components/PincodeCheck";
+import { AddToCart } from "@/components/AddToCart";
 import { Reveal } from "@/components/Motion";
 import { ChatIcon } from "@/components/Icons";
 import { whatsappLink } from "@/lib/site";
@@ -94,15 +95,16 @@ export default async function ProductPage({ params }: Params) {
           )}
 
           {!p.inStock && <span className="stock-out">Out of stock right now</span>}
-          <a className="btn btn-glow" href={whatsappLink(p.inStock ? orderText : backText)} target="_blank" rel="noopener noreferrer">
-            <ChatIcon size={20} /> {p.inStock ? "Order on WhatsApp" : "Tell me when it’s back"}
+          {p.inStock && p.priceInr !== null && <AddToCart slug={p.slug} name={p.name} />}
+          <a className={`btn ${p.inStock && p.priceInr !== null ? "btn-outline" : "btn-glow"}`} href={whatsappLink(!p.inStock ? backText : orderText)} target="_blank" rel="noopener noreferrer">
+            <ChatIcon size={20} /> {!p.inStock ? "Tell me when it’s back" : p.priceInr === null ? "Ask price on WhatsApp" : "Order on WhatsApp instead"}
           </a>
 
           <PincodeCheck />
 
           <div className="infobox">
             <b>How ordering works</b>
-            <span className="muted">1. Message us this gift on WhatsApp · 2. We confirm price &amp; delivery date for your PIN code · 3. Pay by UPI / card with a secure link · 4. We gift-wrap and ship with tracking.</span>
+            <span className="muted">1. Add to cart and place your order (or message us on WhatsApp) · 2. Pay by UPI: GPay, PhonePe or Paytm · 3. We gift-wrap it by hand · 4. We ship with tracking. Follow it on <a href="/track/">Track your order</a>.</span>
           </div>
 
           <div className="details">
