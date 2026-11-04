@@ -293,3 +293,4 @@ a:hover { color: var(--plum-dark); }
 .pdp-slides::-webkit-scrollbar { display: none; }
 .pdp-slides > * { flex: 0 0 100%; scroll-snap-align: center; }
 .stock-out { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #f6e4e4; color: #8a1f2b; font-weight: 700; font-size: 14px; }
+.product-media .badge { z-index: 2; }
