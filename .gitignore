@@ -33,3 +33,9 @@ Thumbs.db
 
 # Local screenshots / logs
 logs/
+
+# Local secrets (never commit)
+.secrets/
+
+# Catalogue downloaded at build time
+apps/storefront/src/data/generated/

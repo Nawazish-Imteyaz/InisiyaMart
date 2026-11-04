@@ -1,0 +1,15 @@
+# Cloudflare Pages config for Insi House (see docs/ops/cloudflare.md).
+# No secrets here: the repo is public. Secrets (DEPLOY_HOOK_URL) are set as encrypted Pages secrets.
+name = "insihouse"
+pages_build_output_dir = "out"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "insihouse-db"
+database_id = "fb46cfd6-3107-40b5-870f-9e79dc723c71"
+migrations_dir = "db/migrations"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "insihouse-photos"

@@ -31,7 +31,8 @@ to customers **all over India** (decision 006). We do **not** deliver to the GCC
 | `docs/brand/` | Logo, colours, fonts, photos |
 | `docs/design/` | Page designs (mock-ups) |
 | `docs/decisions/` | Decision log (one file per decision) |
-| `apps/storefront/` | The live website code (Next.js static export) |
+| `apps/storefront/` | The live website code (Next.js static export) + `functions/` (admin API) + `db/` (schema) |
+| `docs/ops/cloudflare.md` | Hosting, database, photos, secrets, admin logins |
 
 ## Working rules for Claude
 1. **Original brand only.** Use reference sites for patterns, never for assets or text.
@@ -51,4 +52,6 @@ Ask Claude to "use the insi-house-expert agent" for planning, feature design, pr
 ## Build notes (this PC)
 `npm run …` fails in the Bash tool (no cmd.exe). Build with
 `cd apps/storefront && node node_modules/next/dist/bin/next build`.
-Live preview: https://nawazish-imteyaz.github.io/InisiyaMart/ (auto-deploys from `main`).
+Live site: https://insihouse.pages.dev (Cloudflare Pages, auto-deploys from `main`). Admin: /admin/.
+Backend = Pages Functions + D1 + R2 (decision 007, `docs/ops/cloudflare.md`). Secrets live only in `.secrets/` (git-ignored). Never commit them.
+The build downloads the live catalogue first (`next.config.ts`); use `CATALOG_OFFLINE=1` for offline builds.

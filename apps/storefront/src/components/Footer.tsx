@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChatIcon } from "./Icons";
 import { site, whatsappLink } from "@/lib/site";
+import { categories, shopLink } from "@/data/catalog";
 
 export function Footer() {
   return (
@@ -15,9 +16,7 @@ export function Footer() {
           <nav className="footer-col" aria-label="Shop">
             <b>Shop</b>
             <Link href="/shop/">All gifts</Link>
-            <Link href="/shop/">Black pottery</Link>
-            <Link href="/shop/">Silk &amp; dupattas</Link>
-            <Link href="/shop/">Gift hampers</Link>
+            {categories.slice(0, 4).map((c) => <Link key={c.slug} href={shopLink(c.slug)}>{c.name}</Link>)}
           </nav>
           <nav className="footer-col" aria-label="About">
             <b>About</b>
@@ -32,6 +31,7 @@ export function Footer() {
               <ChatIcon size={18} /> Chat on WhatsApp
             </a>
             {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
+            {site.instagram && <a href={`https://instagram.com/${site.instagram}`} target="_blank" rel="noopener noreferrer">Instagram @{site.instagram}</a>}
           </div>
         </div>
         <div className="footer-bottom">

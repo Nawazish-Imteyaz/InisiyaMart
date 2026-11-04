@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShopGrid } from "./ShopGrid";
+import { categories, products } from "@/data/catalog";
 
 export const metadata: Metadata = { title: "Shop handmade gifts" };
 
@@ -19,7 +20,7 @@ export default function ShopPage() {
           </p>
         </div>
       </div>
-      <ShopGrid />
+      <ShopGrid products={products} categories={categories} />
     </div>
   );
 }

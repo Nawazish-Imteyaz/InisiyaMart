@@ -2,20 +2,18 @@ import Link from "next/link";
 import { LogoMark } from "./Logo";
 import { ChatIcon, MenuIcon } from "./Icons";
 import { site, whatsappLink } from "@/lib/site";
+import { categories, shopLink } from "@/data/catalog";
 
 const links = [
   { href: "/shop/", label: "Shop all" },
-  { href: "/shop/", label: "Gifts for her" },
-  { href: "/shop/", label: "Black pottery" },
-  { href: "/shop/", label: "Silk & dupattas" },
-  { href: "/shop/", label: "Hampers" },
+  ...categories.slice(0, 4).map((c) => ({ href: shopLink(c.slug), label: c.name })),
   { href: "/story/", label: "Our story" },
 ];
 
 export function Header() {
   return (
     <>
-      <div className="topbar">✦ Handmade in Azamgarh · {site.delivery} · Gift-wrapped with love ✦</div>
+      {site.announcement && <div className="topbar">{site.announcement}</div>}
       <header className="header">
         <div className="container header-row">
           <details className="mobile-menu">

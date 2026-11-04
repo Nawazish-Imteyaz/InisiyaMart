@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatPrice, getProduct, products } from "@/data/catalog";
+import { formatInr, formatPrice, getProduct, products } from "@/data/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductArt } from "@/components/ProductArt";
 import { PincodeCheck } from "@/components/PincodeCheck";
@@ -14,7 +14,8 @@ type Params = { params: Promise<{ slug: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+  // A static export needs at least one page; "_" renders the 404 page when there are no products.
+  return products.length ? products.map((p) => ({ slug: p.slug })) : [{ slug: "_" }];
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -31,7 +32,8 @@ export default async function ProductPage({ params }: Params) {
   if (!p) notFound();
 
   const orderText = `Hello Insi House! I'd like to order: ${p.name}. My PIN code is ______. Please share the price and delivery date.`;
-  const related = products.filter((x) => x.slug !== p.slug && x.craft === p.craft).concat(products.filter((x) => x.craft !== p.craft)).slice(0, 4);
+  const backText = `Hello Insi House! Please tell me when ${p.name} is back in stock.`;
+  const related = products.filter((x) => x.slug !== p.slug && x.category === p.category).concat(products.filter((x) => x.category !== p.category)).slice(0, 4);
 
   return (
     <div className="container" style={{ paddingBlockEnd: 80 }}>
@@ -40,15 +42,38 @@ export default async function ProductPage({ params }: Params) {
       </nav>
 
       <div className="pdp">
-        <Reveal className={`pdp-media arch tone-${p.tone}`}>
-          <ProductArt art={p.art} size={300} light={darkTones.has(p.tone)} />
-          <span className="ph-label">product photo coming soon</span>
-        </Reveal>
+        {p.images.length > 0 ? (
+          <div className="pdp-gallery" style={{ flex: "1 1 420px", minInlineSize: 0 }}>
+            <div className="pdp-slides" tabIndex={0} aria-label={`${p.name} photos`}>
+              {p.images.map((src, i) => (
+                <div key={src} id={`photo-${i + 1}`} className={`pdp-media arch tone-${p.tone}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={`${p.name}, photo ${i + 1}`} loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+                </div>
+              ))}
+            </div>
+            {p.images.length > 1 && (
+              <div className="pdp-thumbs">
+                {p.images.map((src, i) => (
+                  <a key={src} href={`#photo-${i + 1}`} aria-label={`Show photo ${i + 1}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" loading="lazy" decoding="async" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <Reveal className={`pdp-media arch tone-${p.tone}`}>
+            <ProductArt art={p.art} size={300} light={darkTones.has(p.tone)} />
+            <span className="ph-label">product photo coming soon</span>
+          </Reveal>
+        )}
 
         <div className="pdp-info">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             <span className="pill">{p.badge}</span>
-            <span className="pill">{p.collection} collection</span>
+            {p.collection && <span className="pill">{p.collection} collection</span>}
           </div>
           <div>
             <h1 className="display" style={{ fontSize: "clamp(36px, 4.8vw, 52px)" }}>{p.name}</h1>
@@ -56,6 +81,7 @@ export default async function ProductPage({ params }: Params) {
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 30, fontWeight: 800, color: "var(--plum)" }}>{formatPrice(p)}</span>
+            {p.mrpInr !== null && p.priceInr !== null && p.mrpInr > p.priceInr && <s className="muted" style={{ fontSize: 17 }}>{formatInr(p.mrpInr)}</s>}
             {p.priceInr !== null && <span className="muted" style={{ fontSize: 13 }}>incl. of all taxes</span>}
           </div>
           <p className="muted" style={{ margin: 0, fontSize: 16, lineHeight: 1.7 }}>{p.summary}</p>
@@ -67,8 +93,9 @@ export default async function ProductPage({ params }: Params) {
             </div>
           )}
 
-          <a className="btn btn-glow" href={whatsappLink(orderText)} target="_blank" rel="noopener noreferrer">
-            <ChatIcon size={20} /> Order on WhatsApp
+          {!p.inStock && <span className="stock-out">Out of stock right now</span>}
+          <a className="btn btn-glow" href={whatsappLink(p.inStock ? orderText : backText)} target="_blank" rel="noopener noreferrer">
+            <ChatIcon size={20} /> {p.inStock ? "Order on WhatsApp" : "Tell me when it’s back"}
           </a>
 
           <PincodeCheck />
@@ -85,7 +112,7 @@ export default async function ProductPage({ params }: Params) {
             </details>
             <details>
               <summary>Size &amp; materials</summary>
-              <p>[Size, weight and materials will be added for each product.]</p>
+              <p style={{ whiteSpace: "pre-line" }}>{p.details || "Size, weight and materials will be added soon. Ask us on WhatsApp for details."}</p>
             </details>
             <details>
               <summary>Delivery &amp; packing</summary>

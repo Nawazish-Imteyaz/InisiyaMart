@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { categories, collections, occasions, products } from "@/data/catalog";
+import { categories, categoryGradients, collections, occasions, products, shopLink } from "@/data/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductArt } from "@/components/ProductArt";
 import { HeroStage } from "@/components/HeroStage";
@@ -81,13 +81,17 @@ export default function Home() {
           <Link href="/shop/" className="link-more">Shop all gifts →</Link>
         </Reveal>
         <div className="cats">
-          {categories.map((c, i) => (
-            <Reveal key={c.name} delay={i * 90}>
+          {categories.slice(0, 8).map((c, i) => (
+            <Reveal key={c.slug} delay={i * 90}>
               <Tilt>
-                <Link href="/shop/" className="cat" style={{ background: c.bg }}>
-                  <span className="cat-art pop"><ProductArt art={c.art} size={140} light /></span>
+                <Link
+                  href={shopLink(c.slug)}
+                  className={`cat${c.image ? " has-photo" : ""}`}
+                  style={{ background: c.image ? `linear-gradient(180deg, transparent 35%, rgba(43,27,34,.78)), url(${c.image}) center/cover` : categoryGradients[c.color] }}
+                >
+                  {!c.image && <span className="cat-art pop"><ProductArt art={c.art} size={140} light /></span>}
                   <h3>{c.name}</h3>
-                  <span>{c.sub} · Shop now →</span>
+                  <span>{c.sub ? `${c.sub} · ` : ""}Shop now →</span>
                 </Link>
               </Tilt>
             </Reveal>
@@ -125,7 +129,7 @@ export default function Home() {
         </Reveal>
         <Reveal>
           <div className="rail" tabIndex={0} aria-label="Trending gifts, scroll sideways">
-            {products.map((p) => <ProductCard key={p.slug} p={p} />)}
+            {products.slice(0, 12).map((p) => <ProductCard key={p.slug} p={p} />)}
           </div>
         </Reveal>
       </section>
