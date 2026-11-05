@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ShopGrid } from "./ShopGrid";
-import { categories, products } from "@/data/catalog";
+import { categories, occasions, products } from "@/data/catalog";
 
 export const metadata: Metadata = { title: "Shop handmade gifts" };
 
@@ -9,7 +9,7 @@ export default function ShopPage() {
   return (
     <div className="container" style={{ paddingBlockEnd: 80 }}>
       <nav aria-label="Breadcrumb" className="breadcrumb"><Link href="/">Home</Link> / Shop</nav>
-      <div className="cta" style={{ marginBlockEnd: 32 }}>
+      <div className="cta shop-hero" style={{ marginBlockEnd: 28 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, maxInlineSize: 680 }}>
           <span className="eyebrow">Handmade in Azamgarh · Delivered across India</span>
           <h1 className="display" style={{ fontSize: "clamp(40px, 5.5vw, 60px)" }}>
@@ -20,7 +20,7 @@ export default function ShopPage() {
           </p>
         </div>
       </div>
-      <ShopGrid products={products} categories={categories} />
+      <ShopGrid products={products} categories={categories} occasions={occasions} />
     </div>
   );
 }

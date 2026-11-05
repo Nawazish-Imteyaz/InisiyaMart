@@ -11,5 +11,10 @@ export const onRequestGet = async ({ env, params }: Ctx): Promise<Response> => {
   headers.set("etag", obj.httpEtag);
   // Keys are random and never reused, so photos can be cached for a year.
   headers.set("cache-control", "public, max-age=31536000, immutable");
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("content-security-policy", "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'");
+  // Only photos are ever served from here.
+  const type = headers.get("content-type") ?? "";
+  if (!/^image\/(jpeg|png|webp)$/.test(type)) return new Response("Not found", { status: 404 });
   return new Response(obj.body, { headers });
 };

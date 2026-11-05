@@ -5,7 +5,7 @@ import { api, when } from "../lib";
 import { useAdmin } from "../AdminApp";
 import { ErrorBox, Field, Loading, PageHead, useLoad } from "./ui";
 
-interface Member { id: number; email: string; name: string; role: "owner" | "staff"; active: number; last_login_at: string | null }
+interface Member { id: number; email: string; name: string; role: "owner" | "staff"; active: number; totp_on?: number; last_login_at: string | null }
 
 export function Team() {
   const { toast, fail, user } = useAdmin();
@@ -20,8 +20,10 @@ export function Team() {
   async function add(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    const my = window.prompt("To add a team member, type YOUR admin password:");
+    if (!my) { setBusy(false); return; }
     try {
-      await api("users", { body: f });
+      await api("users", { body: { ...f, my_password: my } });
       toast(`${f.name} added. Share the email and password with them privately.`);
       setF({ name: "", email: "", role: "staff", password: "" });
       setAdding(false);
@@ -30,6 +32,11 @@ export function Team() {
   }
 
   async function update(m: Member, body: Record<string, unknown>, msg: string) {
+    if (body.password !== undefined || body.role !== undefined || body.reset_2fa !== undefined) {
+      const my = window.prompt("For safety, type YOUR admin password to confirm:");
+      if (!my) { reload(); return; }
+      body = { ...body, my_password: my };
+    }
     try { await api(`users/${m.id}`, { method: "PUT", body }); toast(msg); reload(); } catch (e) { fail(e); }
   }
 
@@ -48,7 +55,7 @@ export function Team() {
     <>
       <PageHead
         title="Team"
-        sub="People who can log in to this admin console. Owners can do everything; staff manage products, categories and orders."
+        sub="People who can log in to this admin console."
         actions={!adding && <button className="adm-btn primary" onClick={() => setAdding(true)}>+ Add person</button>}
       />
       {adding && (
@@ -73,9 +80,13 @@ export function Team() {
           </div>
         </form>
       )}
+      <div className="adm-perm">
+        <div><b>Owner</b><span>Everything: products, orders, customers, coupons, settings, payment &amp; courier keys, team, activity log.</span></div>
+        <div><b>Staff</b><span>Products, categories, occasions, orders, customers (view &amp; notes) and enquiries. Cannot see keys, settings, team or delete customers.</span></div>
+      </div>
       <div className="adm-table-wrap">
         <table className="adm-table">
-          <thead><tr><th>Person</th><th>Role</th><th>Last login</th><th>Access</th><th /></tr></thead>
+          <thead><tr><th>Person</th><th>Role</th><th>Two-step</th><th>Last login</th><th>Access</th><th /></tr></thead>
           <tbody>
             {data.users.map((m) => (
               <tr key={m.id}>
@@ -85,6 +96,7 @@ export function Team() {
                     <option value="staff">Staff</option><option value="owner">Owner</option>
                   </select>
                 </td>
+                <td>{m.totp_on ? <span className="adm-tag ok">On</span> : <span className="adm-tag warn">Off</span>}</td>
                 <td>{when(m.last_login_at)}</td>
                 <td>
                   <label className="adm-switch">
@@ -94,7 +106,8 @@ export function Team() {
                 </td>
                 <td className="adm-right">
                   <div className="adm-row end">
-                    <button className="adm-btn small" onClick={() => resetPassword(m)}>Set password</button>
+                    {m.id !== user.id && <button className="adm-btn small" onClick={() => resetPassword(m)}>Set password</button>}
+                    {!!m.totp_on && m.id !== user.id && <button className="adm-btn small" onClick={() => { if (confirm(`Turn off two-step login for ${m.name}? Use this if they lost their phone. They can turn it on again in Security.`)) update(m, { reset_2fa: true }, `Two-step login reset for ${m.name}`); }}>Reset 2-step</button>}
                     {m.id !== user.id && <button className="adm-btn small danger" onClick={() => remove(m)}>Remove</button>}
                   </div>
                 </td>

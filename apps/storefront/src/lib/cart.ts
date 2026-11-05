@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 export interface CartLine { slug: string; qty: number }
 const KEY = "ih-cart-v1";
 const EVENT = "ih-cart";
+export const CART_EVENT = EVENT;
 export const MAX_QTY = 10;
 
 function read(): CartLine[] {
@@ -35,6 +36,7 @@ export const cart = {
     write(qty <= 0 ? read().filter((l) => l.slug !== slug) : read().map((l) => (l.slug === slug ? { ...l, qty: Math.min(MAX_QTY, qty) } : l)));
   },
   clear() { write([]); },
+  replace(lines: CartLine[]) { write(lines.filter((l) => /^[a-z0-9-]{1,80}$/.test(l.slug) && l.qty > 0).slice(0, 20)); },
 };
 
 /** Cart lines, kept in sync across tabs and components. `ready` is false until the browser copy is read. */
@@ -53,7 +55,7 @@ export function useCart(): { lines: CartLine[]; ready: boolean; count: number } 
 }
 
 /** Last placed order, so the confirmation page can show it after checkout. */
-export interface PlacedOrder { number: string; phone: string; total: number; shipping: number | null; upi_id: string }
+export interface PlacedOrder { number: string; phone: string; total: number; shipping: number | null; upi_id: string; payment_method?: string }
 export function saveLastOrder(o: PlacedOrder) {
   try { sessionStorage.setItem("ih-last-order", JSON.stringify(o)); } catch { /* ignore */ }
 }

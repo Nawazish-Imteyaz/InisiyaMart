@@ -1,15 +1,37 @@
 import Link from "next/link";
 import { LogoMark } from "./Logo";
-import { ChatIcon, MenuIcon } from "./Icons";
+import { MenuIcon } from "./Icons";
 import { CartButton } from "./CartButton";
+import { AccountLink, SearchButton, WishlistLink, type SearchItem } from "./HeaderTools";
 import { site, whatsappLink } from "@/lib/site";
-import { categories, shopLink } from "@/data/catalog";
+import { categories, formatPrice, occasionLink, occasions, products, shopLink } from "@/data/catalog";
 
 const links = [
   { href: "/shop/", label: "Shop all" },
-  ...categories.slice(0, 4).map((c) => ({ href: shopLink(c.slug), label: c.name })),
+  ...categories.slice(0, 3).map((c) => ({ href: shopLink(c.slug), label: c.name })),
+  { href: "/occasions/", label: "Occasions" },
+  { href: "/events/", label: "Weddings" },
+];
+const mobileExtra = [
+  ...categories.slice(3).map((c) => ({ href: shopLink(c.slug), label: c.name })),
+  { href: "/wishlist/", label: "My wishlist" },
+  { href: "/track/", label: "Track order" },
   { href: "/story/", label: "Our story" },
-  { href: "/track/", label: "Track order", mobileOnly: true },
+];
+
+const occName = new Map(occasions.map((o) => [o.slug, o.name]));
+const searchItems: SearchItem[] = products.map((p) => ({
+  slug: p.slug,
+  name: p.name,
+  craft: p.craft,
+  price: formatPrice(p),
+  image: p.images[0] ?? null,
+  words: [p.summary, p.collection, p.badge, ...p.occasions.map((o) => occName.get(o) ?? o)].join(" ").toLowerCase(),
+}));
+const quick = [
+  ...occasions.filter((o) => o.group === "wedding").slice(0, 3).map((o) => ({ label: o.name, href: occasionLink(o.slug) })),
+  ...categories.slice(0, 3).map((c) => ({ label: c.name, href: shopLink(c.slug) })),
+  { label: "Under ₹999", href: "/shop/?price=0-999" },
 ];
 
 export function Header() {
@@ -21,9 +43,10 @@ export function Header() {
           <details className="mobile-menu">
             <summary className="icon-btn" aria-label="Menu"><MenuIcon /></summary>
             <nav aria-label="Mobile">
-              {links.map((l) => (
+              {[...links, ...mobileExtra].map((l) => (
                 <Link key={l.label} href={l.href}>{l.label}</Link>
               ))}
+              <a href={whatsappLink("Hello Insi House! I'd like to order a gift.")} target="_blank" rel="noopener noreferrer">Order on WhatsApp</a>
             </nav>
           </details>
 
@@ -36,18 +59,15 @@ export function Header() {
           </Link>
 
           <nav className="nav desktop" aria-label="Main">
-            {links.filter((l) => !("mobileOnly" in l)).map((l) => (
+            {links.map((l) => (
               <Link key={l.label} href={l.href}>{l.label}</Link>
             ))}
           </nav>
 
           <div className="header-actions">
-            <a className="btn btn-glow hide-sm" style={{ minBlockSize: 44, paddingInline: 18, fontSize: 14 }} href={whatsappLink("Hello Insi House! I'd like to order a gift.")} target="_blank" rel="noopener noreferrer">
-              Order on WhatsApp
-            </a>
-            <a className="icon-btn" aria-label="Chat on WhatsApp" href={whatsappLink("Hello Insi House!")} target="_blank" rel="noopener noreferrer">
-              <ChatIcon size={22} />
-            </a>
+            <SearchButton items={searchItems} quick={quick} />
+            <WishlistLink />
+            <AccountLink />
             <CartButton />
           </div>
         </div>

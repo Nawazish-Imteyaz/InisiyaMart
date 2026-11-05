@@ -5,7 +5,7 @@ import { api } from "../lib";
 import { useAdmin } from "../AdminApp";
 import { Field, Loading, PageHead } from "./ui";
 
-type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string; shipping_fee: string; free_shipping_above: string };
+type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string; shipping_fee: string; free_shipping_above: string; require_login: string; cod_enabled: string; cod_fee: string; hold_hours: string };
 
 export function SettingsView() {
   const { user, toast, fail } = useAdmin();
@@ -62,6 +62,23 @@ export function SettingsView() {
             </Field>
             <Field label="Delivery line" wide hint="Short line used in the footer and home page.">
               <input maxLength={80} value={s.delivery} onChange={(e) => set("delivery", e.target.value)} />
+            </Field>
+          </div>
+          <h2 style={{ marginBlockStart: 24 }}>Checkout</h2>
+          <div className="adm-grid">
+            <label className="adm-check wide">
+              <input type="checkbox" checked={s.require_login === "1"} onChange={(e) => set("require_login", e.target.checked ? "1" : "0")} />
+              <span>Customers must log in before ordering <small>Like Flipkart. Recommended once WhatsApp / SMS login codes are switched on (Settings → WhatsApp &amp; SMS). When off, guests can also order.</small></span>
+            </label>
+            <label className="adm-check">
+              <input type="checkbox" checked={s.cod_enabled === "1"} onChange={(e) => set("cod_enabled", e.target.checked ? "1" : "0")} />
+              <span>Offer cash on delivery <small>Customers pay the courier. Check your courier collects COD at your PIN codes.</small></span>
+            </label>
+            <Field label="Cancel unpaid UPI orders after (hours)" hint="Website orders with no payment and no UTR are cancelled and their stock goes back. 0 = never. Default 48.">
+              <input inputMode="numeric" maxLength={3} value={s.hold_hours} onChange={(e) => set("hold_hours", e.target.value.replace(/[^0-9]/g, ""))} placeholder="48" />
+            </Field>
+            <Field label="Cash on delivery fee (₹)" hint="Added to COD orders only. Empty = no fee.">
+              <input inputMode="numeric" maxLength={5} value={s.cod_fee} disabled={s.cod_enabled !== "1"} onChange={(e) => set("cod_fee", e.target.value.replace(/[^0-9]/g, ""))} placeholder="e.g. 50" />
             </Field>
           </div>
           <div className="adm-row end"><button className="adm-btn primary" disabled={busy}>{busy ? "Saving…" : "Save settings"}</button></div>

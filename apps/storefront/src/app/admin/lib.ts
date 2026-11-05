@@ -3,7 +3,7 @@
 // Shared helpers for the admin console (runs in the browser).
 
 export type Role = "owner" | "staff";
-export interface AdminUser { id: number; email: string; name: string; role: Role }
+export interface AdminUser { id: number; email: string; name: string; role: Role; totp?: boolean }
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -106,7 +106,6 @@ export const COLORS = [
   { value: "rose", label: "Rose", css: "linear-gradient(150deg,#f3b3c2,#c9677f)" },
 ] as const;
 
-export const OCCASIONS = ["Raksha Bandhan", "Diwali", "Eid", "Wedding & Nikah", "Birthday", "Anniversary", "Mother's Day", "Thank You"];
 export const COLLECTIONS = ["", "Tohfa", "Nafees", "Zauq", "Khuloos"];
 export const BADGES = ["Handmade", "Gift set", "Personalised", "New", "Bestseller"];
 

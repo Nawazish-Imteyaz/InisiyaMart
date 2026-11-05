@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { api, ARTS, BADGES, COLLECTIONS, OCCASIONS, rupees, TONES, uploadPhoto, when } from "../lib";
+import { api, ARTS, BADGES, COLLECTIONS, rupees, TONES, uploadPhoto, when } from "../lib";
 import { go, useAdmin } from "../AdminApp";
 import { ColorDots, Empty, ErrorBox, Field, Loading, PageHead, useLoad } from "./ui";
 
@@ -11,6 +11,8 @@ interface Row {
   image_count: number; tone: string; updated_at: string;
 }
 interface Cat { id: number; name: string }
+interface Occ { id: number; slug: string; name: string; grp: string }
+const GROUPS = [{ id: "wedding", label: "Wedding" }, { id: "celebration", label: "Celebrations" }, { id: "festival", label: "Festivals" }];
 
 const STATUS_LABEL = { active: "On website", hidden: "Hidden", draft: "Draft" } as const;
 
@@ -151,6 +153,7 @@ export function ProductEdit({ id }: { id: number | null }) {
   const [form, setForm] = useState<Form | null>(id ? null : emptyForm);
   const [images, setImages] = useState<Img[]>([]);
   const [cats, setCats] = useState<Cat[]>([]);
+  const [occs, setOccs] = useState<Occ[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(0);
   const [meta, setMeta] = useState<{ slug: string; updated_at: string } | null>(null);
@@ -158,6 +161,7 @@ export function ProductEdit({ id }: { id: number | null }) {
 
   useEffect(() => {
     api<{ categories: Cat[] }>("categories").then((r) => setCats(r.categories)).catch(fail);
+    api<{ occasions: Occ[] }>("occasions").then((r) => setOccs(r.occasions)).catch(fail);
     if (!id) return;
     api<{ product: Record<string, unknown>; images: Img[] }>(`products/${id}`)
       .then(({ product: p, images }) => {
@@ -188,6 +192,8 @@ export function ProductEdit({ id }: { id: number | null }) {
       mrp_inr: form.mrp_inr.trim() === "" ? null : form.mrp_inr,
       stock: form.stock || "0",
       slug: id ? form.slug : "",
+      // Older products saved occasion names; save them as slugs now.
+      occasions: form.occasions.map((x) => occs.find((o) => o.slug === x || o.name === x)?.slug).filter(Boolean),
     };
     try {
       if (id) {
@@ -360,15 +366,28 @@ export function ProductEdit({ id }: { id: number | null }) {
                 <span>Can be personalised <small>Shows “Add a name” on the product page.</small></span>
               </label>
               <fieldset className="adm-fieldset wide">
-                <legend>Occasions</legend>
-                <div className="adm-chips">
-                  {OCCASIONS.map((o) => (
-                    <label key={o} className={`adm-chip${form.occasions.includes(o) ? " on" : ""}`}>
-                      <input type="checkbox" checked={form.occasions.includes(o)} onChange={(e) => set("occasions", e.target.checked ? [...form.occasions, o] : form.occasions.filter((x) => x !== o))} />
-                      {o}
-                    </label>
-                  ))}
-                </div>
+                <legend>Occasions <small className="adm-muted">(the product shows on these occasion pages)</small></legend>
+                {GROUPS.map((g) => {
+                  const list = occs.filter((o) => o.grp === g.id);
+                  if (!list.length) return null;
+                  return (
+                    <div key={g.id} className="adm-occ-group">
+                      <span className="adm-occ-label">{g.label}</span>
+                      <div className="adm-chips">
+                        {list.map((o) => {
+                          const on = form.occasions.includes(o.slug) || form.occasions.includes(o.name);
+                          return (
+                            <label key={o.slug} className={`adm-chip${on ? " on" : ""}`}>
+                              <input type="checkbox" checked={on} onChange={(e) => set("occasions", e.target.checked ? [...form.occasions.filter((x) => x !== o.name), o.slug] : form.occasions.filter((x) => x !== o.slug && x !== o.name))} />
+                              {o.name}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+                <a href="#/occasions" className="adm-small-link">+ Add or edit occasions</a>
               </fieldset>
             </div>
           </section>

@@ -1,17 +1,16 @@
 // /api/admin/* — the admin console API. Every route except login needs a valid session cookie.
 import {
-  bool, getSetting, hashPassword, HttpError, int, json, oneOf, PUBLIC_SETTINGS, randomHex, readJson, safeEqual,
-  setSetting, sha256, slugify, str, type Ctx, type D1Database, type Env,
+  bool, clientIp, hashPassword, HttpError, int, json, oneOf, PUBLIC_SETTINGS, randomHex, readCookie, readJson, safeEqual,
+  setSetting, sha256, str, totpStep, type Ctx, type D1Database, type Env,
 } from "../../_lib/util";
-
-type Role = "owner" | "staff";
-interface User { id: number; email: string; name: string; role: Role }
+import { contentChanged, idParam, log, publish, publishState, readImage, requireOwner, uniqueSlug, type Role, type User } from "../../_lib/admin-core";
+import {
+  coupons, customers, dashboard, enquiries, integrations, notifications, occasions, security, webhooks,
+} from "../../_lib/admin-more";
+import { emit } from "../../_lib/providers";
 
 const COOKIE = "ih_admin";
 const SESSION_DAYS = 7;
-const PUBLISH_GAP_MS = 3 * 60 * 1000; // at most one website rebuild every 3 minutes (free plan: 500 builds/month)
-const MAX_UPLOAD = 8 * 1024 * 1024;
-const IMAGE_TYPES: Record<string, string> = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png" };
 
 const TONES = ["ink", "rose", "blush", "mauve", "plum", "dusty"] as const;
 const ARTS = ["pot", "fabric", "gift", "frame", "diya", "clutch"] as const;
@@ -49,9 +48,20 @@ async function route(ctx: Ctx): Promise<Response> {
   if (a === "logout" && m === "POST") return logout(ctx);
 
   const user = await requireUser(env.DB, req);
-  if (a === "me" && m === "GET") return json({ user });
+  if (a === "me" && !b && m === "GET") {
+    const t = await env.DB.prepare("SELECT totp_on FROM admin_users WHERE id = ?").bind(user.id).first<{ totp_on: number }>();
+    return json({ user: { ...user, totp: !!t?.totp_on } });
+  }
   if (a === "me" && b === "password" && m === "PUT") return changeOwnPassword(env, user, req);
-  if (a === "dashboard" && m === "GET") return dashboard(env);
+  if (a === "me" && (b === "sessions" || b === "2fa" || b === "logins")) return security(ctx, user, m, b, c);
+  if (a === "dashboard" && m === "GET") return dashboard(env, url);
+  if (a === "notifications" && m === "GET") return notifications(env, user);
+  if (a === "occasions") return occasions(ctx, user, m, b, c);
+  if (a === "customers") return customers(ctx, user, m, b, c);
+  if (a === "enquiries") return enquiries(ctx, user, m, b);
+  if (a === "coupons") return coupons(ctx, user, m, b);
+  if (a === "integrations") { requireOwner(user); return integrations(ctx, user, m, b, c); }
+  if (a === "webhooks") { requireOwner(user); return webhooks(ctx, user, m, b, c); }
   if (a === "publish") return m === "POST" ? json(await publish(env, user, true)) : json(await publishState(env));
   if (a === "categories") return categories(ctx, user, m, b, c);
   if (a === "products") return products(ctx, user, m, b, c);
@@ -68,15 +78,6 @@ async function route(ctx: Ctx): Promise<Response> {
 }
 
 // ============================ Auth ============================
-
-function readCookie(req: Request, name: string): string {
-  const h = req.headers.get("cookie") ?? "";
-  for (const part of h.split(/;\s*/)) {
-    const i = part.indexOf("=");
-    if (i > 0 && part.slice(0, i) === name) return part.slice(i + 1);
-  }
-  return "";
-}
 
 function sessionCookie(token: string, maxAge: number): string {
   return `${COOKIE}=${token}; Path=/api/admin; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAge}`;
@@ -96,15 +97,12 @@ async function requireUser(db: D1Database, req: Request): Promise<User> {
   return row;
 }
 
-function requireOwner(user: User) {
-  if (user.role !== "owner") throw new HttpError(403, "Only the owner can do this");
-}
 
 async function login({ request: req, env }: Ctx): Promise<Response> {
   const body = await readJson(req);
   const email = str(body.email, 120, "Email", true).toLowerCase();
   const password = typeof body.password === "string" ? body.password : "";
-  const ip = req.headers.get("cf-connecting-ip") ?? "";
+  const ip = clientIp(req);
 
   // Limit guesses per device: 8 wrong tries for one email, or 30 in total, per 15 minutes.
   // (Counting per device, not per email alone, so nobody can lock the owner out from elsewhere.)
@@ -116,19 +114,32 @@ async function login({ request: req, env }: Ctx): Promise<Response> {
   if ((fails?.same ?? 0) >= 8 || (fails?.total ?? 0) >= 30) throw new HttpError(429, "Too many wrong attempts. Please wait 15 minutes and try again.");
 
   const u = await env.DB
-    .prepare("SELECT id, email, name, role, pass_hash, pass_salt FROM admin_users WHERE email = ? AND active = 1")
+    .prepare("SELECT id, email, name, role, pass_hash, pass_salt, totp_on, totp_secret, totp_last FROM admin_users WHERE email = ? AND active = 1")
     .bind(email)
-    .first<User & { pass_hash: string; pass_salt: string }>();
+    .first<User & { pass_hash: string; pass_salt: string; totp_on: number; totp_secret: string; totp_last: number }>();
   let ok = false;
   if (u) ok = safeEqual(await hashPassword(password, u.pass_salt), u.pass_hash);
   else await hashPassword(password, "00".repeat(16)); // same timing whether or not the email exists
+
+  // Two-step login: after the right password, the 6-digit code from the authenticator app is also needed.
+  if (ok && u && u.totp_on) {
+    if (body.code === undefined || body.code === "") return json({ need_code: true });
+    const step = await totpStep(u.totp_secret, body.code);
+    // Each code works once: the step must be newer than the last one used (claimed atomically).
+    const claimed = step === null ? null : await env.DB.prepare("UPDATE admin_users SET totp_last = ? WHERE id = ? AND totp_last < ? RETURNING id").bind(step, u.id, step).first();
+    if (!claimed) {
+      await env.DB.prepare("INSERT INTO login_attempts (email, ip, ok) VALUES (?, ?, 0)").bind(email, ip).run();
+      throw new HttpError(401, step === null ? "Wrong 6-digit code. Check the time on your phone and try again." : "This code was already used. Wait for the next code in the app.");
+    }
+  }
 
   await env.DB.prepare("INSERT INTO login_attempts (email, ip, ok) VALUES (?, ?, ?)").bind(email, ip, ok ? 1 : 0).run();
   if (!ok || !u) throw new HttpError(401, "Wrong email or password");
 
   const token = randomHex(32);
+  const ua = (req.headers.get("user-agent") ?? "").slice(0, 200);
   await env.DB.batch([
-    env.DB.prepare(`INSERT INTO sessions (token_hash, user_id, expires_at) VALUES (?, ?, datetime('now', '+${SESSION_DAYS} days'))`).bind(await sha256(token), u.id),
+    env.DB.prepare(`INSERT INTO sessions (token_hash, user_id, expires_at, ip, ua) VALUES (?, ?, datetime('now', '+${SESSION_DAYS} days'), ?, ?)`).bind(await sha256(token), u.id, ip, ua),
     env.DB.prepare("UPDATE admin_users SET last_login_at = datetime('now') WHERE id = ?").bind(u.id),
     env.DB.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')"),
     env.DB.prepare("DELETE FROM login_attempts WHERE created_at < datetime('now', '-30 days')"),
@@ -151,9 +162,21 @@ async function changeOwnPassword(env: Env, user: User, req: Request): Promise<Re
     throw new HttpError(400, "Your current password is wrong");
   }
   const { hash, salt } = await newPassword(body.next);
-  await env.DB.prepare("UPDATE admin_users SET pass_hash = ?, pass_salt = ? WHERE id = ?").bind(hash, salt, user.id).run();
+  const token = readCookie(req, COOKIE);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE admin_users SET pass_hash = ?, pass_salt = ? WHERE id = ?").bind(hash, salt, user.id),
+    // Every other device is logged out.
+    env.DB.prepare("DELETE FROM sessions WHERE user_id = ? AND token_hash != ?").bind(user.id, await sha256(token)),
+  ]);
   await log(env.DB, user, "Changed own password");
   return json({ ok: true });
+}
+
+async function confirmPassword(db: D1Database, me: User, pw: unknown) {
+  const row = await db.prepare("SELECT pass_hash, pass_salt FROM admin_users WHERE id = ?").bind(me.id).first<{ pass_hash: string; pass_salt: string }>();
+  if (!row || typeof pw !== "string" || !safeEqual(await hashPassword(pw, row.pass_salt), row.pass_hash)) {
+    throw new HttpError(400, "Please type your own admin password to confirm this change");
+  }
 }
 
 async function newPassword(v: unknown): Promise<{ hash: string; salt: string }> {
@@ -162,105 +185,6 @@ async function newPassword(v: unknown): Promise<{ hash: string; salt: string }> 
   if (pw.length > 200) throw new HttpError(400, "Password is too long");
   const salt = randomHex(16);
   return { hash: await hashPassword(pw, salt), salt };
-}
-
-// ============================ Helpers ============================
-
-async function log(db: D1Database, user: User, action: string, detail = "") {
-  await db.prepare("INSERT INTO activity (user_name, action, detail) VALUES (?, ?, ?)").bind(user.name || user.email, action, detail.slice(0, 500)).run();
-}
-
-async function uniqueSlug(db: D1Database, table: "products" | "categories", base: string, excludeId?: number): Promise<string> {
-  const root = slugify(base);
-  for (let i = 1; i < 200; i++) {
-    const slug = i === 1 ? root : `${root}-${i}`;
-    const hit = await db.prepare(`SELECT id FROM ${table} WHERE slug = ? AND id != ?`).bind(slug, excludeId ?? 0).first();
-    if (!hit) return slug;
-  }
-  return `${root}-${randomHex(3)}`;
-}
-
-function idParam(v: string | undefined, what: string): number {
-  const n = Number(v);
-  if (!v || !Number.isInteger(n) || n < 1) throw new HttpError(404, `${what} not found`);
-  return n;
-}
-
-/** Website content changed → remember it and rebuild the website (throttled). */
-async function contentChanged(ctx: Ctx, user: User) {
-  await setSetting(ctx.env.DB, "_last_change", new Date().toISOString());
-  ctx.waitUntil(publish(ctx.env, user, false).catch((e) => console.error("publish failed", e)));
-}
-
-async function publishState(env: Env) {
-  const [lastChange, lastPublish] = await Promise.all([getSetting(env.DB, "_last_change"), getSetting(env.DB, "_last_publish")]);
-  return {
-    hook: !!env.DEPLOY_HOOK_URL,
-    lastChange: lastChange || null,
-    lastPublish: lastPublish || null,
-    pending: !!lastChange && (!lastPublish || lastChange > lastPublish),
-    nextAllowedAt: lastPublish ? new Date(Date.parse(lastPublish) + PUBLISH_GAP_MS).toISOString() : null,
-  };
-}
-
-async function publish(env: Env, user: User, manual: boolean) {
-  if (!env.DEPLOY_HOOK_URL) return { ...(await publishState(env)), started: false, reason: "The deploy hook is not set up yet" };
-  const last = await getSetting(env.DB, "_last_publish");
-  if (last && Date.now() - Date.parse(last) < PUBLISH_GAP_MS) {
-    return { ...(await publishState(env)), started: false, reason: "The website was refreshed less than 3 minutes ago. It will refresh again automatically." };
-  }
-  const r = await fetch(env.DEPLOY_HOOK_URL, { method: "POST" });
-  if (!r.ok) return { ...(await publishState(env)), started: false, reason: `Cloudflare refused the rebuild (HTTP ${r.status})` };
-  await setSetting(env.DB, "_last_publish", new Date().toISOString());
-  if (manual) await log(env.DB, user, "Refreshed the website");
-  return { ...(await publishState(env)), started: true };
-}
-
-async function readImage(req: Request): Promise<{ data: ArrayBuffer; type: string; ext: string }> {
-  let form: FormData;
-  try {
-    form = await req.formData();
-  } catch {
-    throw new HttpError(400, "Please choose a photo to upload");
-  }
-  const file = form.get("file");
-  if (!file || typeof file === "string") throw new HttpError(400, "Please choose a photo to upload");
-  const ext = IMAGE_TYPES[file.type];
-  if (!ext) throw new HttpError(400, "Photos must be JPG, PNG or WebP");
-  if (file.size > MAX_UPLOAD) throw new HttpError(400, "Photo is too large (max 8 MB)");
-  return { data: await file.arrayBuffer(), type: file.type, ext };
-}
-
-// ============================ Dashboard ============================
-
-async function dashboard(env: Env): Promise<Response> {
-  const db = env.DB;
-  const [prod, orderCounts, today, month, recent, low] = await db.batch([
-    db.prepare(`SELECT COUNT(*) AS total,
-        SUM(status = 'active') AS active,
-        SUM(status = 'active' AND track_stock = 1 AND stock <= 0) AS out_of_stock,
-        SUM(status = 'active' AND track_stock = 1 AND stock BETWEEN 1 AND 3) AS low_stock
-      FROM products`),
-    db.prepare("SELECT status, COUNT(*) AS n FROM orders GROUP BY status"),
-    db.prepare("SELECT COUNT(*) AS n FROM orders WHERE date(created_at, '+330 minutes') = date('now', '+330 minutes')"),
-    db.prepare(`SELECT COALESCE(SUM(total), 0) AS sales, COUNT(*) AS n FROM orders
-      WHERE status NOT IN ('cancelled','returned') AND strftime('%Y-%m', created_at, '+330 minutes') = strftime('%Y-%m', 'now', '+330 minutes')`),
-    db.prepare("SELECT id, number, customer_name, total, status, payment_status, created_at FROM orders ORDER BY id DESC LIMIT 6"),
-    db.prepare(`SELECT id, name, stock FROM products WHERE status = 'active' AND track_stock = 1 AND stock <= 3 ORDER BY stock, name LIMIT 8`),
-  ]);
-  const byStatus: Record<string, number> = {};
-  for (const r of orderCounts.results as { status: string; n: number }[]) byStatus[r.status] = r.n;
-  const cats = await db.prepare("SELECT COUNT(*) AS n FROM categories").first<{ n: number }>();
-  return json({
-    products: prod.results[0],
-    categories: cats?.n ?? 0,
-    ordersByStatus: byStatus,
-    ordersToday: (today.results[0] as { n: number }).n,
-    month: month.results[0],
-    recentOrders: recent.results,
-    lowStock: low.results,
-    publish: await publishState(env),
-  });
 }
 
 // ============================ Categories ============================
@@ -367,8 +291,9 @@ async function productValues(db: D1Database, body: Record<string, unknown>, crea
   if (has("status")) out.status = oneOf(body.status ?? "active", PRODUCT_STATUS, "Status");
   if (has("personalisable")) out.personalisable = bool(body.personalisable);
   if (has("occasions")) {
-    const list = Array.isArray(body.occasions) ? body.occasions.map(String) : String(body.occasions ?? "").split(",");
-    out.occasions = str(list.map((s) => s.trim()).filter(Boolean).join(","), 300, "Occasions");
+    const list = (Array.isArray(body.occasions) ? body.occasions.map(String) : String(body.occasions ?? "").split(","))
+      .map((s) => s.trim()).filter((s) => /^[a-z0-9-]{1,80}$/.test(s));
+    out.occasions = str([...new Set(list)].join(","), 600, "Occasions");
   }
   if (has("tone")) out.tone = oneOf(body.tone ?? "rose", TONES, "Card colour");
   if (has("art")) out.art = oneOf(body.art ?? "gift", ARTS, "Drawing");
@@ -511,8 +436,11 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
     const vals: unknown[] = [];
     if (status && (ORDER_STATUS as readonly string[]).includes(status)) { where.push("status = ?"); vals.push(status); }
     if (q) { where.push("(number LIKE ? OR customer_name LIKE ? OR phone LIKE ? OR pincode LIKE ?)"); vals.push(...Array(4).fill(`%${q}%`)); }
+    if (url.searchParams.get("pay") === "check") where.push("payment_status = 'pending' AND payment_ref != ''");
+    const cust = Number(url.searchParams.get("customer"));
+    if (Number.isInteger(cust) && cust > 0) { where.push("customer_id = ?"); vals.push(cust); }
     const r = await db
-      .prepare(`SELECT id, number, customer_name, phone, city, pincode, total, status, payment_status, payment_ref, courier, awb, source, created_at FROM orders ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY id DESC LIMIT 300`)
+      .prepare(`SELECT id, number, customer_name, phone, city, pincode, total, status, payment_status, payment_method, payment_ref, courier, awb, source, customer_id, coupon_code, occasion, created_at FROM orders ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY id DESC LIMIT 300`)
       .bind(...vals)
       .all();
     return json({ orders: r.results });
@@ -597,6 +525,8 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
       await db.batch([...stmts, ...extra]);
       await log(db, user, "Updated order", `${o.number}${notes.length ? `: ${notes.join(" · ")}` : ""}`);
       if (extra.length) await contentChanged(ctx, user);
+      if (newStatus !== o.status) emit(ctx, "order.updated", { number: o.number, status: newStatus, previous: o.status, courier: body.courier ?? o.courier, awb: body.awb ?? o.awb });
+      if (body.payment_status === "paid" && o.payment_status !== "paid") emit(ctx, "order.paid", { number: o.number, amount: o.total, via: "manual" });
     }
     return json({ ok: true });
   }
@@ -644,7 +574,14 @@ async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
       if (u && !/^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/.test(u)) throw new HttpError(400, "UPI ID looks wrong, e.g. insihouse@ybl");
       v.upi_id = u;
     }
-    for (const k of ["shipping_fee", "free_shipping_above"] as const) {
+    if (body.require_login !== undefined) v.require_login = bool(body.require_login) ? "1" : "0";
+    if (body.cod_enabled !== undefined) v.cod_enabled = bool(body.cod_enabled) ? "1" : "0";
+    if (body.hold_hours !== undefined) {
+      const h = String(body.hold_hours ?? "").replace(/[^0-9]/g, "");
+      if (h && Number(h) > 720) throw new HttpError(400, "Hours must be 720 (30 days) or less");
+      v.hold_hours = h;
+    }
+    for (const k of ["shipping_fee", "free_shipping_above", "cod_fee"] as const) {
       if (body[k] === undefined) continue;
       const n = String(body[k] ?? "").replace(/[^0-9]/g, "");
       if (n && Number(n) > 100_000) throw new HttpError(400, "Delivery amounts look too high");
@@ -663,11 +600,12 @@ async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
 async function users(env: Env, me: User, m: string, b: string | undefined, req: Request): Promise<Response> {
   const db = env.DB;
   if (!b && m === "GET") {
-    const r = await db.prepare("SELECT id, email, name, role, active, last_login_at, created_at FROM admin_users ORDER BY role, name").all();
+    const r = await db.prepare("SELECT id, email, name, role, active, totp_on, last_login_at, created_at FROM admin_users ORDER BY role, name").all();
     return json({ users: r.results });
   }
   if (!b && m === "POST") {
     const body = await readJson(req);
+    await confirmPassword(db, me, body.my_password);
     const email = str(body.email, 120, "Email", true).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, "Enter a valid email address");
     if (await db.prepare("SELECT id FROM admin_users WHERE email = ?").bind(email).first()) throw new HttpError(409, "A user with this email already exists");
@@ -688,6 +626,11 @@ async function users(env: Env, me: User, m: string, b: string | undefined, req: 
 
   if (m === "PUT") {
     const body = await readJson(req);
+    if (body.password !== undefined || body.role !== undefined || body.reset_2fa !== undefined) {
+      // Sensitive team changes need the owner's own password again (a stolen session alone is not enough).
+      if (id === me.id && (body.password !== undefined || body.reset_2fa !== undefined)) throw new HttpError(400, "Change your own password and two-step login on the Security and Settings pages");
+      await confirmPassword(db, me, body.my_password);
+    }
     const sets: string[] = [];
     const vals: unknown[] = [];
     const put = (col: string, v: unknown) => { sets.push(`${col} = ?`); vals.push(v); };
@@ -705,6 +648,12 @@ async function users(env: Env, me: User, m: string, b: string | undefined, req: 
       if (!active && u.role === "owner" && (await otherOwners()) === 0) throw new HttpError(400, "There must always be at least one owner");
       put("active", active);
       if (!active) endSessions = true;
+    }
+    if (body.reset_2fa === true) {
+      put("totp_on", 0);
+      put("totp_secret", "");
+      put("totp_last", 0);
+      endSessions = true;
     }
     if (body.password) {
       const { hash, salt } = await newPassword(body.password);

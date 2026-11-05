@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { categories, categoryGradients, collections, occasions, products, shopLink } from "@/data/catalog";
+import { categories, categoryGradients, collections, occasionLink, occasions, products, shopLink } from "@/data/catalog";
+import { OccasionArt, OccasionTile } from "@/components/OccasionTile";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductArt } from "@/components/ProductArt";
 import { HeroStage } from "@/components/HeroStage";
@@ -100,25 +101,45 @@ export default function Home() {
       </section>
 
       {/* OCCASIONS */}
-      <section className="container" style={{ paddingBlockEnd: 80 }}>
+      <section className="container" style={{ paddingBlockEnd: 72 }}>
         <Reveal className="section-head">
           <div>
             <span className="eyebrow">Celebrate every moment</span>
             <h2 className="display" style={{ marginBlockStart: 8 }}>Shop by occasion</h2>
           </div>
+          <Link href="/occasions/" className="link-more">All occasions →</Link>
         </Reveal>
         <div className="occasions">
-          {occasions.map((o, i) => (
-            <Reveal key={o.name} delay={i * 60}>
-              <Link href="/shop/" className="occasion">
-                <span className="o-art arch" style={{ background: o.bg }}>
-                  {o.urdu ? <span className="urdu" lang="ur">{o.urdu}</span> : <GiftBurst />}
-                </span>
-                {o.name}
-              </Link>
-            </Reveal>
+          {occasions.filter((o) => o.group !== "wedding").slice(0, 8).map((o, i) => (
+            <Reveal key={o.slug} delay={i * 60}><OccasionTile o={o} /></Reveal>
           ))}
         </div>
+      </section>
+
+      {/* SHAADI SEASON */}
+      <section className="container" style={{ paddingBlockEnd: 80 }}>
+        <Reveal>
+          <div className="shaadi">
+            <div className="shaadi-copy">
+              <span className="urdu" lang="ur" dir="rtl">شادی مبارک</span>
+              <h2 className="display">Haldi, mehndi &amp; nikah, handmade</h2>
+              <p>Return gifts your guests will keep, trousseau pieces for the bride and hampers for both families. Made to order in your colours, with your names on every card.</p>
+              <div className="row-btns">
+                <Link href="/events/" className="btn btn-light">Get a wedding quote</Link>
+                <Link href="/occasion/return-gifts/" className="btn btn-outline on-dark">Return gift ideas</Link>
+              </div>
+            </div>
+            <div className="shaadi-tiles">
+              {occasions.filter((o) => o.group === "wedding").slice(0, 4).map((o) => (
+                <Link key={o.slug} href={occasionLink(o.slug)} className={`shaadi-tile k-${o.color}`}>
+                  <OccasionArt slug={o.slug} size={54} />
+                  <b>{o.name}</b>
+                  {o.urdu && <span className="urdu" lang="ur" dir="rtl">{o.urdu}</span>}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* TRENDING RAIL */}
@@ -229,16 +250,5 @@ export default function Home() {
         </Reveal>
       </section>
     </>
-  );
-}
-
-function GiftBurst() {
-  return (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <rect x="14" y="28" width="36" height="26" rx="4" fill="rgba(255,255,255,0.9)" />
-      <rect x="10" y="20" width="44" height="10" rx="3" fill="#fff" />
-      <rect x="29" y="20" width="6" height="34" fill="rgba(107,33,66,0.35)" />
-      <path d="M32 20c-4-8-14-8-12-1 1 3 8 2 12 1zM32 20c4-8 14-8 12-1-1 3-8 2-12 1z" fill="#fff" />
-    </svg>
   );
 }

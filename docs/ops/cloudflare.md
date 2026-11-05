@@ -30,3 +30,17 @@ Install wrangler into a tools folder with PowerShell (`npm install wrangler`; Ba
 
 ## GitHub Pages
 Retired on 2026-11-04 (workflow removed). The old github.io link shows the last copy and can be switched off in repo Settings → Pages.
+
+## v2: accounts, partner keys, security (decision 009)
+
+| Item | Where |
+|---|---|
+| Encryption key for partner keys | Pages secret `SECRETS_KEY` (64 hex). Local copy in `.secrets/cloudflare.env`. Set once with `node apps/storefront/scripts/set-secrets-key.mjs`. **Never change it** (saved keys would need re-entering). |
+| Partner keys (Razorpay, Shiprocket, WhatsApp…) | Admin → Settings → Payments / Shipping / WhatsApp & SMS. Stored encrypted in D1 table `integrations`. |
+| Incoming webhooks | `/api/hooks/razorpay`, `/api/hooks/courier` (Shiprocket), `/api/hooks/whatsapp`. Log: table `webhook_log`, shown in the admin. |
+| Customer accounts | `/api/account/*`, cookie `ih_cust`, tables `customers`, `customer_sessions`, `customer_addresses`, `otp_codes`. |
+| Security headers | `apps/storefront/public/_headers` (pages) and `json()` in `functions/_lib/util.ts` (API). |
+| Prefetch fix | `scripts/flatten-rsc.mjs` runs after `next build` (in `npm run build`). |
+
+Local testing: add `--binding SECRETS_KEY=<64 hex>` to the `wrangler pages dev` command.
+Server type-check: `node node_modules/typescript/bin/tsc -p functions/tsconfig.json`.

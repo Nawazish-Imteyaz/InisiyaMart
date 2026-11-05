@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatInr, formatPrice, getProduct, products } from "@/data/catalog";
-import { ProductCard } from "@/components/ProductCard";
+import { formatInr, formatPrice, getOccasion, getProduct, occasionLink, products } from "@/data/catalog";
+import { offPercent, ProductCard } from "@/components/ProductCard";
+import { WishButton } from "@/components/WishButton";
+import { RecentlyViewed, ShareButton } from "@/components/ProductExtras";
 import { ProductArt } from "@/components/ProductArt";
 import { PincodeCheck } from "@/components/PincodeCheck";
 import { AddToCart } from "@/components/AddToCart";
@@ -72,9 +74,15 @@ export default async function ProductPage({ params }: Params) {
         )}
 
         <div className="pdp-info">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            <span className="pill">{p.badge}</span>
-            {p.collection && <span className="pill">{p.collection} collection</span>}
+          <div className="pdp-top">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <span className="pill">{p.badge}</span>
+              {p.collection && <span className="pill">{p.collection} collection</span>}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <WishButton slug={p.slug} name={p.name} big />
+              <ShareButton name={p.name} />
+            </div>
           </div>
           <div>
             <h1 className="display" style={{ fontSize: "clamp(36px, 4.8vw, 52px)" }}>{p.name}</h1>
@@ -83,6 +91,7 @@ export default async function ProductPage({ params }: Params) {
           <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 30, fontWeight: 800, color: "var(--plum)" }}>{formatPrice(p)}</span>
             {p.mrpInr !== null && p.priceInr !== null && p.mrpInr > p.priceInr && <s className="muted" style={{ fontSize: 17 }}>{formatInr(p.mrpInr)}</s>}
+            {offPercent(p) > 0 && <span className="off big">{offPercent(p)}% off</span>}
             {p.priceInr !== null && <span className="muted" style={{ fontSize: 13 }}>incl. of all taxes</span>}
           </div>
           <p className="muted" style={{ margin: 0, fontSize: 16, lineHeight: 1.7 }}>{p.summary}</p>
@@ -95,12 +104,32 @@ export default async function ProductPage({ params }: Params) {
           )}
 
           {!p.inStock && <span className="stock-out">Out of stock right now</span>}
-          {p.inStock && p.priceInr !== null && <AddToCart slug={p.slug} name={p.name} />}
+          {p.inStock && p.priceInr !== null && <AddToCart slug={p.slug} name={p.name} price={formatPrice(p)} />}
           <a className={`btn ${p.inStock && p.priceInr !== null ? "btn-outline" : "btn-glow"}`} href={whatsappLink(!p.inStock ? backText : orderText)} target="_blank" rel="noopener noreferrer">
             <ChatIcon size={20} /> {!p.inStock ? "Tell me when it’s back" : p.priceInr === null ? "Ask price on WhatsApp" : "Order on WhatsApp instead"}
           </a>
 
           <PincodeCheck />
+
+          <ul className="trust-row" aria-label="Why shop with us">
+            <li><b>✋</b>Handmade in Azamgarh</li>
+            <li><b>🎁</b>Gift-wrapped with a card</li>
+            <li><b>🔒</b>Secure UPI payment</li>
+            <li><b>🚚</b>Delivered across India</li>
+          </ul>
+
+          {p.occasions.length > 0 && (
+            <div className="pdp-occ">
+              <b>Perfect for</b>
+              <div className="chips" style={{ margin: 0 }}>
+                {p.occasions.map((slug) => getOccasion(slug)).filter((o) => !!o).map((o) => (
+                  <Link key={o!.slug} href={occasionLink(o!.slug)} className={`chip-link k-${o!.color}`}>{o!.name}</Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Link href={`/events/?product=${p.slug}`} className="bulk-link">Need 20 or more for a wedding, haldi or office? <b>Get a bulk price →</b></Link>
 
           <div className="infobox">
             <b>How ordering works</b>
@@ -130,6 +159,7 @@ export default async function ProductPage({ params }: Params) {
           {related.map((r) => <ProductCard key={r.slug} p={r} />)}
         </div>
       </section>
+      <RecentlyViewed current={p.slug} products={products} />
     </div>
   );
 }

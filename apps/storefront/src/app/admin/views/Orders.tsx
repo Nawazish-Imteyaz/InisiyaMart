@@ -13,6 +13,7 @@ interface Item { productId: number | null; name: string; qty: number; priceInr: 
 interface Order extends Omit<OrderRow, "items"> {
   email: string; address: string; state: string; items: Item[]; subtotal: number; shipping: number; discount: number;
   payment_ref: string; tracking_url: string; notes: string; source: string; updated_at: string; gift_message: string;
+  customer_id?: number | null; coupon_code?: string; occasion?: string; payment_method?: string;
 }
 interface Event { id: number; status: string; note: string; user_name: string; created_at: string }
 
@@ -26,7 +27,9 @@ const payLabel = (v: string) => PAY_STATUS.find((p) => p.value === v)?.label ?? 
 
 // ============================ List ============================
 export function OrderList() {
-  const [status, setStatus] = useState(() => (typeof window === "undefined" ? "" : hashQuery().get("status") ?? ""));
+  const [status, setStatusRaw] = useState(() => (typeof window === "undefined" ? "" : hashQuery().get("status") ?? ""));
+  const [pay, setPay] = useState(() => (typeof window === "undefined" ? "" : hashQuery().get("pay") ?? ""));
+  const setStatus = (v: string) => { setStatusRaw(v); setPay(""); };
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
   useEffect(() => {
@@ -34,8 +37,8 @@ export function OrderList() {
     return () => window.clearTimeout(t);
   }, [q]);
   const { data, error, reload } = useLoad(
-    () => api<{ orders: OrderRow[] }>(`orders?status=${encodeURIComponent(status)}&q=${encodeURIComponent(search)}`),
-    [status, search],
+    () => api<{ orders: OrderRow[] }>(`orders?status=${encodeURIComponent(status)}&q=${encodeURIComponent(search)}${pay ? `&pay=${pay}` : ""}`),
+    [status, search, pay],
   );
 
   return (
@@ -46,9 +49,10 @@ export function OrderList() {
         actions={<a className="adm-btn primary" href="#/orders/new">+ Add order</a>}
       />
       <div className="adm-tabs" role="tablist">
-        <button role="tab" aria-selected={status === ""} onClick={() => setStatus("")}>All</button>
+        <button role="tab" aria-selected={status === "" && !pay} onClick={() => setStatus("")}>All</button>
+        <button role="tab" aria-selected={pay === "check"} onClick={() => { setStatusRaw(""); setPay("check"); }}>💰 Payments to check</button>
         {ORDER_STATUS.map((s) => (
-          <button key={s.value} role="tab" aria-selected={status === s.value} onClick={() => setStatus(s.value)}>{s.label}</button>
+          <button key={s.value} role="tab" aria-selected={status === s.value && !pay} onClick={() => setStatus(s.value)}>{s.label}</button>
         ))}
       </div>
       <div className="adm-filters">
@@ -221,6 +225,17 @@ export function OrderView({ id }: { id: number }) {
               </Field>
             </div>
           </section>
+          {(data.order.occasion || data.order.coupon_code || data.order.customer_id || data.order.payment_method === "cod") && (
+            <section className="adm-card">
+              <h2>Order details</h2>
+              <dl className="adm-dl">
+                {data.order.occasion && <><dt>Occasion</dt><dd>{data.order.occasion}</dd></>}
+                {data.order.coupon_code && <><dt>Coupon</dt><dd><b>{data.order.coupon_code}</b> (−{rupees(data.order.discount)})</dd></>}
+                {data.order.payment_method && <><dt>Payment method</dt><dd>{data.order.payment_method === "cod" ? "Cash on delivery" : data.order.payment_method === "razorpay" ? "Razorpay (online)" : "UPI"}</dd></>}
+                {data.order.customer_id ? <><dt>Customer account</dt><dd><a href={`#/customers/${data.order.customer_id}`}>Open customer →</a></dd></> : <><dt>Customer account</dt><dd>Guest order</dd></>}
+              </dl>
+            </section>
+          )}
           {data.order.gift_message && (
             <section className="adm-card gift-card">
               <h2>Gift message for the card</h2>

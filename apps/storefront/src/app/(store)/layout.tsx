@@ -1,6 +1,8 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ChatIcon } from "@/components/Icons";
+import { AccountSync } from "@/components/AccountSync";
+import { MobileNav } from "@/components/HeaderTools";
 import { whatsappLink } from "@/lib/site";
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
@@ -12,6 +14,8 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <a className="wa-float" href={whatsappLink("Hello Insi House!")} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
         <ChatIcon />
       </a>
+      <MobileNav />
+      <AccountSync />
     </>
   );
 }

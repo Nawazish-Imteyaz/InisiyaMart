@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node scripts/flatten-rsc.mjs out",
     "preview": "npx serve out"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.2",
     "next": "^16.4.4",
+    "qrcode-generator": "1.4.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "three": "^0.187.0"

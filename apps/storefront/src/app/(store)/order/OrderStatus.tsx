@@ -7,7 +7,7 @@ import { readLastOrder, upiLink } from "@/lib/cart";
 import { whatsappLink } from "@/lib/site";
 
 interface Tracked {
-  number: string; status: string; payment_status: string; payment_reported: boolean;
+  number: string; status: string; payment_status: string; payment_method?: string; payment_reported: boolean; coupon_code?: string;
   items: { name: string; qty: number; priceInr: number }[]; subtotal: number; shipping: number; discount: number; total: number;
   courier: string; awb: string; tracking_url: string; city: string; pincode: string; created_at: string;
   steps: { status: string; at: string }[];
@@ -42,10 +42,11 @@ export function OrderStatus({ mode }: { mode: "placed" | "track" }) {
     setBusy(true);
     setError("");
     try {
-      const r = await fetch(`/api/order/track?n=${encodeURIComponent(num)}&phone=${encodeURIComponent(ph)}`, { cache: "no-store" });
+      const r = await fetch(`/api/order/track?n=${encodeURIComponent(num)}${ph ? `&phone=${encodeURIComponent(ph)}` : ""}`, { cache: "no-store", credentials: "same-origin" });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || "Could not find the order");
       setOrder(d.order);
+      if (d.phone) setPhone(d.phone);
       setUpi(d.upi_id || "");
       setShipPending(!!d.shipping_pending);
     } catch (e) {
@@ -63,7 +64,8 @@ export function OrderStatus({ mode }: { mode: "placed" | "track" }) {
     const ph = q.get("phone") ?? (last && last.number === num ? last.phone : "");
     setN(num);
     setPhone(ph);
-    if (num && ph) load(num, ph);
+    // Logged-in customers can open their own orders with just the number.
+    if (num) load(num, ph).then(() => { if (!ph) setError(""); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -105,6 +107,12 @@ export function OrderStatus({ mode }: { mode: "placed" | "track" }) {
       {order && (
         <div className="cart-layout">
           <section className="checkout-main">
+            {order.payment_status === "cod" && !closed && (
+              <div className="form-card pay-card">
+                <h2>Cash on delivery · {formatInr(order.total)}</h2>
+                <p className="muted" style={{ margin: 0 }}>Please keep {formatInr(order.total)} ready for the delivery person. We&apos;ll confirm your order on WhatsApp before we pack it.</p>
+              </div>
+            )}
             {order.payment_status === "pending" && !closed && (
               <div className="form-card pay-card">
                 <h2>Pay {formatInr(order.total)} by UPI</h2>
@@ -172,7 +180,7 @@ export function OrderStatus({ mode }: { mode: "placed" | "track" }) {
             </ul>
             <div className="sum-row"><span>Subtotal</span><b>{formatInr(order.subtotal)}</b></div>
             <div className="sum-row"><span>Delivery</span><b>{order.shipping ? formatInr(order.shipping) : shipPending ? "Confirmed on WhatsApp" : "Free"}</b></div>
-            {order.discount > 0 && <div className="sum-row"><span>Discount</span><b>−{formatInr(order.discount)}</b></div>}
+            {order.discount > 0 && <div className="sum-row save"><span>Discount{order.coupon_code ? ` (${order.coupon_code})` : ""}</span><b>−{formatInr(order.discount)}</b></div>}
             <div className="sum-row total"><span>Total</span><b>{formatInr(order.total)}</b></div>
             <div className="sum-row"><span>Payment</span><b>{order.payment_status === "paid" ? "Paid ✓" : order.payment_status === "cod" ? "Cash on delivery" : order.payment_status === "refunded" ? "Refunded" : "Waiting"}</b></div>
             <Link href="/shop/" className="link-more" style={{ textAlign: "center" }}>Continue shopping →</Link>

@@ -18,11 +18,14 @@ export function Footer() {
             <Link href="/shop/">All gifts</Link>
             {categories.slice(0, 4).map((c) => <Link key={c.slug} href={shopLink(c.slug)}>{c.name}</Link>)}
           </nav>
-          <nav className="footer-col" aria-label="About">
-            <b>About</b>
-            <Link href="/story/">Our story</Link>
-            <Link href="/story/">Meet the makers</Link>
-            <Link href="/story/">The crafts of Azamgarh</Link>
+          <nav className="footer-col" aria-label="Gifting">
+            <b>Gifting</b>
+            <Link href="/occasions/">Shop by occasion</Link>
+            <Link href="/events/">Weddings, haldi &amp; mehndi</Link>
+            <Link href="/events/">Bulk &amp; return gifts</Link>
+            <Link href="/story/">Our story &amp; makers</Link>
+            <Link href="/account/">My account</Link>
+            <Link href="/wishlist/">My wishlist</Link>
           </nav>
           <div className="footer-col">
             <b>Order &amp; help</b>

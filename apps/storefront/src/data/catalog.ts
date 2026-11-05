@@ -31,10 +31,22 @@ export interface Product {
   mrpInr: number | null;
   inStock: boolean;
   personalisable: boolean;
-  occasions: string[];
   tone: Tone;
   art: Art;
   images: string[];
+  /** Occasion slugs, e.g. ["haldi", "wedding-nikah"] */
+  occasions: string[];
+  createdAt?: string;
+}
+
+export interface Occasion {
+  slug: string;
+  name: string;
+  urdu: string;
+  blurb: string;
+  color: CategoryColor;
+  group: "wedding" | "festival" | "celebration";
+  image: string | null;
 }
 
 export interface Settings {
@@ -48,6 +60,10 @@ export interface Settings {
   /** Delivery charge in ₹ as text; "" = not set (confirmed on WhatsApp). */
   shipping_fee: string;
   free_shipping_above: string;
+  /** "1" = customers must log in before ordering. */
+  require_login: string;
+  cod_enabled: string;
+  cod_fee: string;
 }
 
 interface LiveCatalog {
@@ -55,6 +71,7 @@ interface LiveCatalog {
   settings: Partial<Settings>;
   categories: Category[];
   products: Product[];
+  occasions?: Occasion[];
 }
 
 // ---------------- Sample catalogue (used until the database is live) ----------------
@@ -89,12 +106,29 @@ const sampleProducts: Product[] = [
   s({ slug: "name-calligraphy-plate", name: "Name calligraphy plate", category: "home-decor", collection: "Khuloos", badge: "Personalised", summary: "A decorative plate with a name in English, Hindi or Urdu. A thoughtful thank-you gift.", tone: "mauve", art: "frame", personalisable: true }),
 ];
 
+const sampleOccasions: Occasion[] = [
+  { slug: "haldi", name: "Haldi", urdu: "ہلدی", blurb: "Bright marigold gifts and favours for the haldi ceremony.", color: "marigold", group: "wedding", image: null },
+  { slug: "mehndi", name: "Mehndi", urdu: "مہندی", blurb: "Handmade gifts and return favours for the mehndi night.", color: "peacock", group: "wedding", image: null },
+  { slug: "wedding-nikah", name: "Wedding & Nikah", urdu: "نکاح", blurb: "Heirloom pieces for the bride, the groom and the families.", color: "plum", group: "wedding", image: null },
+  { slug: "return-gifts", name: "Return gifts", urdu: "تحفہ", blurb: "Small handmade favours for your guests, in bulk.", color: "rose", group: "wedding", image: null },
+  { slug: "birthday", name: "Birthday", urdu: "", blurb: "Gifts she will remember, wrapped by hand.", color: "lilac", group: "celebration", image: null },
+  { slug: "anniversary", name: "Anniversary", urdu: "", blurb: "Timeless handmade pieces for the two of you.", color: "rani", group: "celebration", image: null },
+  { slug: "housewarming", name: "Housewarming", urdu: "", blurb: "Décor and pottery for a new home.", color: "peacock", group: "celebration", image: null },
+  { slug: "baby-shower", name: "Baby shower", urdu: "", blurb: "Gentle, handmade gifts for the new mother.", color: "rose", group: "celebration", image: null },
+  { slug: "thank-you", name: "Thank you", urdu: "شکریہ", blurb: "Small gestures that say a lot.", color: "marigold", group: "celebration", image: null },
+  { slug: "eid", name: "Eid", urdu: "عید", blurb: "Eidi and gifts for the whole family.", color: "peacock", group: "festival", image: null },
+  { slug: "diwali", name: "Diwali", urdu: "", blurb: "Diyas, décor and hampers for the festival of lights.", color: "marigold", group: "festival", image: null },
+  { slug: "raksha-bandhan", name: "Raksha Bandhan", urdu: "", blurb: "Gifts for your sister, from the heart.", color: "rani", group: "festival", image: null },
+  { slug: "mothers-day", name: "Mother's Day", urdu: "", blurb: "For Ammi, Maa and Mummy.", color: "rose", group: "festival", image: null },
+];
+
 // ---------------- Active catalogue ----------------
 const live = (generated as { source?: string }).source === "live" ? (generated as unknown as LiveCatalog) : null;
 
 export const isSampleCatalog = !live;
 export const products: Product[] = live?.products ?? sampleProducts;
 export const categories: Category[] = live?.categories ?? sampleCategories;
+export const occasions: Occasion[] = live?.occasions?.length ? live.occasions : sampleOccasions;
 export const settings: Settings = {
   whatsapp: "",
   email: "",
@@ -104,6 +138,9 @@ export const settings: Settings = {
   upi_id: "",
   shipping_fee: "",
   free_shipping_above: "",
+  require_login: "0",
+  cod_enabled: "0",
+  cod_fee: "",
   ...Object.fromEntries(Object.entries(live?.settings ?? {}).filter(([, v]) => typeof v === "string" && v !== "")),
 };
 
@@ -125,16 +162,7 @@ export const collections = [
   { name: "Khuloos", urdu: "خلوص", desc: "Thank-you & corporate gifts", cls: "c-lilac" },
 ];
 
-export const occasions: { name: string; urdu?: string; bg: string }[] = [
-  { name: "Raksha Bandhan", bg: "linear-gradient(160deg, #ff9ab8, #e0457b)" },
-  { name: "Diwali", bg: "linear-gradient(160deg, #ffd27a, #f08a1c)" },
-  { name: "Eid", urdu: "عید", bg: "linear-gradient(160deg, #3fb5a5, #127c82)" },
-  { name: "Wedding & Nikah", bg: "linear-gradient(160deg, #d07a9a, #6b2142)" },
-  { name: "Birthday", bg: "linear-gradient(160deg, #d9c6f5, #9b7ad1)" },
-  { name: "Anniversary", bg: "linear-gradient(160deg, #ff8f8f, #c93a4f)" },
-  { name: "Mother's Day", bg: "linear-gradient(160deg, #ffc8d6, #d4899b)" },
-  { name: "Thank You", bg: "linear-gradient(160deg, #ffe08a, #e0a526)" },
-];
+
 
 const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -153,3 +181,17 @@ export function getProduct(slug: string): Product | undefined {
 export function shopLink(categorySlug?: string): string {
   return categorySlug ? `/shop/?c=${encodeURIComponent(categorySlug)}` : "/shop/";
 }
+
+export function occasionLink(slug: string): string {
+  return `/occasion/${slug}/`;
+}
+
+export function getOccasion(slug: string): Occasion | undefined {
+  return occasions.find((o) => o.slug === slug);
+}
+
+export const occasionGroups: { id: Occasion["group"]; title: string; urdu: string }[] = [
+  { id: "wedding", title: "Shaadi season", urdu: "شادی" },
+  { id: "celebration", title: "Celebrations", urdu: "جشن" },
+  { id: "festival", title: "Festivals", urdu: "تہوار" },
+];
