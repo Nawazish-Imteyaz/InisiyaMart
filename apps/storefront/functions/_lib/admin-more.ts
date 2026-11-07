@@ -537,6 +537,9 @@ export async function security(ctx: Ctx, user: User, m: string, b: string, c?: s
   }
   if (b === "2fa" && c === "enable" && m === "POST") {
     const body = await readJson(req);
+    // The password is needed too: otherwise a stolen session could switch on 2-step login with the
+    // attacker's phone and lock the real owner out of their own account.
+    await checkPassword(db, user, body.password);
     const row = await db.prepare("SELECT totp_secret FROM admin_users WHERE id = ?").bind(user.id).first<{ totp_secret: string }>();
     if (!row?.totp_secret || !(await totpOk(row.totp_secret, body.code))) throw new HttpError(400, "That code is not right. Type the 6 digits shown in the app now.");
     await db.batch([

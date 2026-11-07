@@ -9,6 +9,7 @@ import { currentCustomer, priceCoupon, saveAddress } from "../../_lib/shop";
 import { clientIp, EMAIL_RE, getSetting, isLocalPin, HttpError, int, json, mobile, readJson, sameOrigin, str, type Ctx, type D1Database } from "../../_lib/util";
 
 const MAX_ORDERS_PER_HOUR = 5;
+const MAX_OPEN_UNPAID = 2;
 
 export const onRequest = async (ctx: Ctx): Promise<Response> => {
   try {
@@ -167,6 +168,19 @@ async function placeOrder(ctx: Ctx): Promise<Response> {
 
   const { items, subtotal } = await priceCart(db, body.items);
 
+  // Unpaid UPI orders hold stock. Limit how many can be open at once per device and per mobile number, so one
+  // person can't lock up the shop's stock with fake orders (a typed-in UTR doesn't count as paid).
+  if (method === "upi") {
+    const open = await db
+      .prepare(`SELECT SUM(ip = ?) AS by_ip, SUM(phone = ?) AS by_phone FROM orders
+                WHERE source = 'website' AND status = 'new' AND payment_status = 'pending' AND created_at > datetime('now', '-30 days')`)
+      .bind(ip, phone)
+      .first<{ by_ip: number | null; by_phone: number | null }>();
+    if ((open?.by_ip ?? 0) >= MAX_OPEN_UNPAID || (open?.by_phone ?? 0) >= MAX_OPEN_UNPAID) {
+      throw new HttpError(429, "You already have unpaid orders waiting. Please pay for them first, or message us on WhatsApp.");
+    }
+  }
+
   let discount = 0;
   let coupon: Awaited<ReturnType<typeof priceCoupon>> | null = null;
   if (body.coupon) {
@@ -233,6 +247,20 @@ async function placeOrder(ctx: Ctx): Promise<Response> {
   } catch (e) {
     await undo(tracked.length);
     throw e;
+  }
+  // 4. "Once per customer" coupons: the check above and this insert are separate steps, so two orders sent at
+  //    the same moment could both pass. Count the customer's EARLIER orders with this coupon; if the limit is
+  //    already reached, this (later) order is removed and its stock and coupon use are given back.
+  if (coupon && coupon.perCustomer > 0) {
+    const before = await db
+      .prepare("SELECT COUNT(*) AS n FROM orders WHERE coupon_code = ? AND status != 'cancelled' AND id < ? AND (customer_id = ? OR phone = ?)")
+      .bind(coupon.code, id, me?.id ?? -1, phone)
+      .first<{ n: number }>();
+    if ((before?.n ?? 0) >= coupon.perCustomer) {
+      await db.prepare("DELETE FROM orders WHERE id = ?").bind(id).run();
+      await undo(tracked.length);
+      throw new HttpError(400, "You have already used this coupon");
+    }
   }
   const number = `IH${1000 + id}`;
   await db.batch([

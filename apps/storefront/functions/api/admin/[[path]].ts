@@ -1,6 +1,6 @@
 // /api/admin/* — the admin console API. Every route except login needs a valid session cookie.
 import {
-  bool, clientIp, hashPassword, HttpError, int, json, oneOf, PRIVATE_SETTINGS, PUBLIC_SETTINGS, randomHex, readCookie, readJson, safeEqual,
+  bool, checkPasswordStrength, clientIp, hashPassword, HttpError, int, json, oneOf, PRIVATE_SETTINGS, PUBLIC_SETTINGS, randomHex, readCookie, readJson, safeEqual,
   setSetting, sha256, str, totpStep, type Ctx, type D1Database, type Env,
 } from "../../_lib/util";
 import { contentChanged, idParam, log, publish, publishState, readImage, requireOwner, uniqueSlug, type Role, type User } from "../../_lib/admin-core";
@@ -98,7 +98,8 @@ async function requireUser(db: D1Database, req: Request): Promise<User> {
 }
 
 
-async function login({ request: req, env }: Ctx): Promise<Response> {
+async function login(ctx: Ctx): Promise<Response> {
+  const { request: req, env } = ctx;
   const body = await readJson(req);
   const email = str(body.email, 120, "Email", true).toLowerCase();
   const password = typeof body.password === "string" ? body.password : "";
@@ -112,6 +113,16 @@ async function login({ request: req, env }: Ctx): Promise<Response> {
     .bind(email, ip)
     .first<{ same: number | null; total: number }>();
   if ((fails?.same ?? 0) >= 8 || (fails?.total ?? 0) >= 30) throw new HttpError(429, "Too many wrong attempts. Please wait 15 minutes and try again.");
+
+  // Guessing spread over many devices: after 20 wrong tries for one email from anywhere in 15 minutes, only
+  // devices that logged in to this account before (last 60 days) may keep trying. The real owner is never locked out.
+  const spread = await env.DB
+    .prepare(`SELECT (SELECT COUNT(*) FROM login_attempts WHERE email = ? AND ok = 0 AND created_at > datetime('now', '-15 minutes')) AS fails,
+                     (SELECT COUNT(*) FROM login_attempts WHERE email = ? AND ip = ? AND ok = 1 AND created_at > datetime('now', '-60 days')) AS known`)
+    .bind(email, email, ip)
+    .first<{ fails: number; known: number }>();
+  const knownDevice = (spread?.known ?? 0) > 0;
+  if ((spread?.fails ?? 0) >= 20 && !knownDevice) throw new HttpError(429, "Too many wrong attempts. Please wait 15 minutes and try again.");
 
   const u = await env.DB
     .prepare("SELECT id, email, name, role, pass_hash, pass_salt, totp_on, totp_secret, totp_last FROM admin_users WHERE email = ? AND active = 1")
@@ -146,6 +157,8 @@ async function login({ request: req, env }: Ctx): Promise<Response> {
   ]);
   const user: User = { id: u.id, email: u.email, name: u.name, role: u.role };
   await log(env.DB, user, "Logged in");
+  // Security alert to the owner's Telegram when an admin logs in from a device not seen before.
+  if (!knownDevice) emit(ctx, "admin.login", {}, `🔐 Admin login from a NEW device: ${user.name || user.email} (${user.role})\nIP ${ip || "?"} · ${ua.slice(0, 80)}\nNot you? Admin → Security → log out all devices and change the password.`);
   return json({ user }, 200, { "set-cookie": sessionCookie(token, SESSION_DAYS * 86400) });
 }
 
@@ -161,7 +174,7 @@ async function changeOwnPassword(env: Env, user: User, req: Request): Promise<Re
   if (!row || !safeEqual(await hashPassword(String(body.current ?? ""), row.pass_salt), row.pass_hash)) {
     throw new HttpError(400, "Your current password is wrong");
   }
-  const { hash, salt } = await newPassword(body.next);
+  const { hash, salt } = await newPassword(body.next, [user.email]);
   const token = readCookie(req, COOKIE);
   await env.DB.batch([
     env.DB.prepare("UPDATE admin_users SET pass_hash = ?, pass_salt = ? WHERE id = ?").bind(hash, salt, user.id),
@@ -179,10 +192,11 @@ async function confirmPassword(db: D1Database, me: User, pw: unknown) {
   }
 }
 
-async function newPassword(v: unknown): Promise<{ hash: string; salt: string }> {
+async function newPassword(v: unknown, personal: string[] = []): Promise<{ hash: string; salt: string }> {
   const pw = typeof v === "string" ? v : "";
   if (pw.length < 8) throw new HttpError(400, "Password must be at least 8 characters");
   if (pw.length > 200) throw new HttpError(400, "Password is too long");
+  checkPasswordStrength(pw, personal);
   const salt = randomHex(16);
   return { hash: await hashPassword(pw, salt), salt };
 }
@@ -663,7 +677,7 @@ async function users(env: Env, me: User, m: string, b: string | undefined, req: 
     const email = str(body.email, 120, "Email", true).toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, "Enter a valid email address");
     if (await db.prepare("SELECT id FROM admin_users WHERE email = ?").bind(email).first()) throw new HttpError(409, "A user with this email already exists");
-    const { hash, salt } = await newPassword(body.password);
+    const { hash, salt } = await newPassword(body.password, [email]);
     const r = await db
       .prepare("INSERT INTO admin_users (email, name, role, pass_hash, pass_salt) VALUES (?, ?, ?, ?, ?)")
       .bind(email, str(body.name, 60, "Name", true), oneOf(body.role ?? "staff", ["owner", "staff"] as const, "Role"), hash, salt)
@@ -710,7 +724,7 @@ async function users(env: Env, me: User, m: string, b: string | undefined, req: 
       endSessions = true;
     }
     if (body.password) {
-      const { hash, salt } = await newPassword(body.password);
+      const { hash, salt } = await newPassword(body.password, [u.email]);
       put("pass_hash", hash);
       put("pass_salt", salt);
       endSessions = id !== me.id;

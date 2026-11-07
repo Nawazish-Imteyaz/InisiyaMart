@@ -15,7 +15,7 @@
 import { otpChannel, sendOtp, emit } from "../../_lib/providers";
 import { addressValues, currentCustomer, customerCookie, CUSTOMER_DAYS, saveAddress, type Customer } from "../../_lib/shop";
 import {
-  bool, clientIp, EMAIL_RE, hashPassword, HttpError, json, mobile, randomHex, readJson, safeEqual, sameOrigin, sha256, str,
+  bool, checkPasswordStrength, clientIp, EMAIL_RE, hashPassword, hmacHex, HttpError, json, mobile, randomHex, readJson, safeEqual, sameOrigin, sha256, str,
   type Ctx, type D1Database, type Env,
 } from "../../_lib/util";
 
@@ -81,17 +81,21 @@ async function loggedIn(db: D1Database, id: number, req: Request): Promise<Respo
   return json({ customer: publicCustomer(c) }, 200, { "set-cookie": cookie });
 }
 
-function newPassword(v: unknown): string {
+function newPassword(v: unknown, personal: string[] = []): string {
   const pw = typeof v === "string" ? v : "";
   if (pw.length < 8) throw new HttpError(400, "Password must be at least 8 characters");
   if (pw.length > 200) throw new HttpError(400, "Password is too long");
   if (/^[0-9]+$/.test(pw) && pw.length < 10) throw new HttpError(400, "Please use letters as well as numbers in your password");
+  checkPasswordStrength(pw, personal);
   return pw;
 }
 
 // ---------------- OTP ----------------
 async function codeHash(env: Env, phone: string, code: string) {
-  return sha256(`${phone}:${code}:${env.SECRETS_KEY ?? "insihouse"}`);
+  // Keyed with the server secret, so a copy of the database alone can't be used to work out the 6-digit codes.
+  // No secret → no code logins (never fall back to a key that is written in this public code).
+  if (!/^[a-f0-9]{64}$/i.test(env.SECRETS_KEY ?? "")) throw new HttpError(503, "Login with a code is not available right now. Please use a password.");
+  return hmacHex(env.SECRETS_KEY as string, `otp:${phone}:${code}`);
 }
 
 async function otpSend({ request: req, env }: Ctx): Promise<Response> {
@@ -176,7 +180,7 @@ async function register(ctx: Ctx): Promise<Response> {
   const name = str(body.name, 80, "Name", true);
   const phone = mobile(body.phone);
   if (!phone) throw new HttpError(400, "Enter a valid 10-digit mobile number");
-  const pw = newPassword(body.password);
+  const pw = newPassword(body.password, [phone, name]);
   const ip = clientIp(req);
   const recent = await db.prepare("SELECT COUNT(*) AS n FROM customer_login_attempts WHERE ip = ? AND phone = '#register' AND created_at > datetime('now', '-1 hour')").bind(ip).first<{ n: number }>();
   if ((recent?.n ?? 0) >= 5) throw new HttpError(429, "Too many new accounts from this device. Please try again later.");
@@ -235,7 +239,7 @@ async function changePassword(db: D1Database, me: Customer, req: Request): Promi
   const body = await readJson(req);
   const row = await db.prepare("SELECT pass_hash, pass_salt FROM customers WHERE id = ?").bind(me.id).first<{ pass_hash: string; pass_salt: string }>();
   if (row?.pass_hash && !safeEqual(await hashPassword(String(body.current ?? ""), row.pass_salt), row.pass_hash)) throw new HttpError(400, "Your current password is wrong");
-  const pw = newPassword(body.next);
+  const pw = newPassword(body.next, [me.phone, me.email, me.name]);
   const salt = randomHex(16);
   const token = (req.headers.get("cookie") ?? "").match(/(?:^|;\s*)ih_cust=([a-f0-9]{64})/)?.[1] ?? "";
   await db.batch([

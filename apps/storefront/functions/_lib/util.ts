@@ -140,6 +140,30 @@ export async function hashPassword(password: string, saltHex: string): Promise<s
   return toHex(bits);
 }
 
+// The most-used passwords in leaked password lists (incl. Indian favourites). Checked case-insensitively.
+const COMMON_PASSWORDS = new Set([
+  "password", "password1", "password123", "passw0rd", "p@ssw0rd", "p@ssword", "12345678", "123456789", "1234567890", "0987654321",
+  "11111111", "00000000", "88888888", "12121212", "11223344", "87654321", "qwertyui", "qwerty123", "qwertyuiop", "1q2w3e4r",
+  "1qaz2wsx", "asdfghjk", "asdf1234", "zxcvbnm1", "abcd1234", "abc12345", "abcdefgh", "iloveyou", "iloveyou1", "welcome1",
+  "welcome123", "admin123", "admin1234", "administrator", "letmein1", "sunshine", "princess", "football", "baseball", "superman",
+  "trustno1", "whatever", "starwars", "dragon12", "monkey12", "computer", "internet", "changeme", "default1", "test1234",
+  "india123", "india@123", "bharat123", "jaihind1", "krishna1", "ganesh123", "sairam123", "omsairam", "allah786", "786786786",
+  "pakistan", "mumbai123", "delhi123", "lucknow1", "azamgarh", "azamgarh1", "insihouse", "insihouse1", "insi@123", "shop1234",
+  "mypassword", "secret12", "qazwsxedc", "lovely123", "sweety123", "angel123", "baby1234", "mother123", "family123", "friends1",
+]);
+
+/** Throws if a new password is too easy to guess. `personal` = things like the phone number or email. */
+export function checkPasswordStrength(pw: string, personal: string[] = []) {
+  const low = pw.toLowerCase();
+  if (COMMON_PASSWORDS.has(low)) throw new HttpError(400, "This password is too common. Please choose a less obvious one.");
+  if (/^(.)\1+$/.test(pw)) throw new HttpError(400, "Please don't use one character repeated");
+  if (/^(0123456789|1234567890|9876543210)/.test(pw)) throw new HttpError(400, "Please don't use a simple number sequence");
+  for (const p of personal) {
+    const v = String(p ?? "").toLowerCase().split("@")[0];
+    if (v.length >= 6 && low.includes(v)) throw new HttpError(400, "Please don't use your mobile number or email in your password");
+  }
+}
+
 export function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let r = 0;

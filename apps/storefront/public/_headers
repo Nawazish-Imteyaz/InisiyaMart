@@ -1,5 +1,6 @@
 # Security headers for every page (Cloudflare Pages). API responses set their own in functions/_lib/util.ts.
 /*
+  ! Access-Control-Allow-Origin
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

@@ -38,6 +38,7 @@ export function Security() {
   const { data, error, reload } = useLoad(() => Promise.all([api<{ sessions: Sess[] }>("me/sessions"), api<{ logins: LoginRow[] }>("me/logins"), api<{ user: { totp: boolean } }>("me")]));
   const [setup, setSetup] = useState<{ secret: string; uri: string } | null>(null);
   const [code, setCode] = useState("");
+  const [pw, setPw] = useState("");
   const [off, setOff] = useState({ password: "", code: "" });
   const [showOff, setShowOff] = useState(false);
 
@@ -51,7 +52,7 @@ export function Security() {
   }
   async function enable(e: React.FormEvent) {
     e.preventDefault();
-    try { await api("me/2fa/enable", { body: { code } }); toast("Two-step login is ON. Other devices were logged out."); setSetup(null); setCode(""); reload(); } catch (err) { fail(err); }
+    try { await api("me/2fa/enable", { body: { code, password: pw } }); toast("Two-step login is ON. Other devices were logged out."); setSetup(null); setCode(""); setPw(""); reload(); } catch (err) { fail(err); }
   }
   async function disable(e: React.FormEvent) {
     e.preventDefault();
@@ -105,6 +106,7 @@ export function Security() {
                 <span className="adm-muted">Setup key</span>
                 <CopyText text={setup.secret.replace(/(.{4})/g, "$1 ").trim()} />
                 <Field label="6-digit code"><input className="adm-otp" inputMode="numeric" autoComplete="one-time-code" maxLength={6} required value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))} /></Field>
+                <Field label="Your password"><input type="password" required autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} /></Field>
                 <div className="adm-row"><button className="adm-btn primary">Turn on</button><button type="button" className="adm-btn" onClick={() => setSetup(null)}>Cancel</button></div>
               </div>
             </div>
