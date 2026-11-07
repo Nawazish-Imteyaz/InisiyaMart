@@ -62,7 +62,7 @@ export async function sellers(ctx: Ctx, user: User, m: string, b?: string): Prom
       const who = `admin:${user.name || user.email}`;
       if (notes.length) await sellerLog(db, id, who, "Shop status changed", `${notes.join(", ")}${body.review_note ? `: ${String(body.review_note).slice(0, 200)}` : ""}`);
       await log(db, user, "Updated seller", `${s.shop_name}${notes.length ? ` (${notes.join(", ")})` : ""}`);
-      if (notes.length) await contentChanged(ctx, user);
+      // No website rebuild: maker shops, product pages and the shop grid load live (saves Cloudflare free-plan builds).
     }
     return json({ ok: true });
   }
@@ -99,7 +99,7 @@ export async function review(ctx: Ctx, user: User, m: string, b?: string): Promi
   await db.prepare("UPDATE products SET review_status = ?, review_note = ?, updated_at = datetime('now') WHERE id = ?").bind(next, note, id).run();
   if (p.seller_id) await sellerLog(db, p.seller_id, `admin:${user.name || user.email}`, `Product ${next}`, `${p.name}${note ? `: ${note}` : ""}`);
   await log(db, user, "Checked product", `${p.name} → ${next}`);
-  if (action === "approve") await contentChanged(ctx, user);
+  // Approved products show at once on the live pages: no rebuild needed (free plan: 500 builds a month).
   return json({ ok: true });
 }
 
