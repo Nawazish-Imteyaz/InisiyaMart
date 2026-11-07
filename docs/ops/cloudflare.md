@@ -44,3 +44,12 @@ Retired on 2026-11-04 (workflow removed). The old github.io link shows the last 
 
 Local testing: add `--binding SECRETS_KEY=<64 hex>` to the `wrangler pages dev` command.
 Server type-check: `node node_modules/typescript/bin/tsc -p functions/tsconfig.json`.
+
+## v3: marketplace live (decision 010), 2026-11-07
+- Live: `/sell/`, `/seller/` (seller dashboard), `/product/?s=<slug>`, `/maker/?s=<shop>`; admin → Sellers. Old `/product/<slug>/` links redirect.
+- Migration `0004_marketplace.sql` applied to the live D1 before the deploy (all existing products → seller #1 "Insi House Originals").
+- Backup taken just before: `logs/backups/2026-11-07-before-marketplace/` (D1 SQL + all 19 R2 photos) and `.secrets/backups/` (both git-ignored, laptop only).
+- Free plan: approving sellers/products does **not** rebuild the site (maker pages load live). Only admin catalogue edits and new categories rebuild (500 builds/month).
+- Cloudflare inventory on 2026-11-07: 1 Pages project, 1 D1 (≈212 KB), 1 R2 bucket (19 photos, 1.6 MB, all in use), no Workers, no unused data.
+  Old Pages deployments (≈25) were left in place: they cost nothing on the free plan. Delete in the dashboard (Pages → insihouse → Deployments) if wanted.
+- Tests (local only): `node scripts/security-test.mjs`, `node scripts/marketplace-test.mjs`.
