@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatInr, type Product } from "@/data/catalog";
+import { formatInr, productLink, type Product } from "@/data/catalog";
 import { accountApi, firstName, logout, setMe, useAccount, type Me } from "@/lib/account";
 import { cart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
@@ -116,7 +116,7 @@ function Orders() {
                 {o.items.map((i, k) => (
                   <li key={k}>
                     <span className="mo-thumb">{i.image ? <img src={i.image} alt="" loading="lazy" /> : "✦"}</span>
-                    <span>{i.slug ? <Link href={`/product/${i.slug}/`}>{i.name}</Link> : i.name}<small>Qty {i.qty} · {formatInr(i.priceInr)}</small></span>
+                    <span>{i.slug ? <Link href={productLink(i.slug)}>{i.name}</Link> : i.name}<small>Qty {i.qty} · {formatInr(i.priceInr)}</small></span>
                   </li>
                 ))}
               </ul>

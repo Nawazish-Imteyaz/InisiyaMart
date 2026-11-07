@@ -17,7 +17,7 @@ export async function log(db: D1Database, user: User, action: string, detail = "
   await db.prepare("INSERT INTO activity (user_name, action, detail) VALUES (?, ?, ?)").bind(user.name || user.email, action, detail.slice(0, 500)).run();
 }
 
-export async function uniqueSlug(db: D1Database, table: "products" | "categories" | "occasions", base: string, excludeId?: number): Promise<string> {
+export async function uniqueSlug(db: D1Database, table: "products" | "categories" | "occasions" | "sellers", base: string, excludeId?: number): Promise<string> {
   const root = slugify(base);
   for (let i = 1; i < 200; i++) {
     const slug = i === 1 ? root : `${root}-${i}`;

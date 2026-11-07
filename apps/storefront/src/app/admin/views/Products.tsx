@@ -252,10 +252,10 @@ export function ProductEdit({ id }: { id: number | null }) {
     <form onSubmit={save}>
       <PageHead
         title={id ? form.name || "Edit product" : "Add product"}
-        sub={id && meta ? `Last changed ${when(meta.updated_at)} · Link: /product/${form.slug}/` : "Fill in the details, save, then add photos."}
+        sub={id && meta ? `Last changed ${when(meta.updated_at)} · Link: /product/?s=${form.slug}` : "Fill in the details, save, then add photos."}
         actions={<>
           <a className="adm-btn" href="#/products">← Back</a>
-          {id && form.status === "active" && <a className="adm-btn" href={`/product/${form.slug}/`} target="_blank" rel="noopener noreferrer">View on website ↗</a>}
+          {id && form.status === "active" && <a className="adm-btn" href={`/product/?s=${form.slug}`} target="_blank" rel="noopener noreferrer">View on website ↗</a>}
           <button className="adm-btn primary" disabled={saving}>{saving ? "Saving…" : "Save"}</button>
         </>}
       />

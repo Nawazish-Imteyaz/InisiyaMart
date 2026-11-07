@@ -24,6 +24,8 @@ export function Footer() {
             <Link href="/events/">Weddings, haldi &amp; mehndi</Link>
             <Link href="/events/">Bulk &amp; return gifts</Link>
             <Link href="/story/">Our story &amp; makers</Link>
+            <Link href="/sell/">Sell your handmade work</Link>
+            <Link href="/seller/">Seller dashboard</Link>
             <Link href="/account/">My account</Link>
             <Link href="/wishlist/">My wishlist</Link>
           </nav>

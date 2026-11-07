@@ -105,6 +105,15 @@ who registers and manages shops for several makers. WhatsApp listing bot later.
 | **4. Go-live legal** | checklist §11, split payments, KYC, GST rules ON, Shiprocket per-seller pickup, Turnstile, custom domain | ready for real money |
 | **5. Reach** | Hindi/Urdu, Seller Saathi, WhatsApp listing, international via Insi House export | more makers, more buyers |
 
+### Phase 1 status (2026-11-07, branch `marketplace`, NOT live yet)
+Built and tested locally: `/sell/` landing, `/seller/` (5-step sign-up + dashboard: home, products with photos, shop settings, help),
+live `/product/?s=` and `/maker/?s=` pages (old `/product/<slug>/` links redirect), maker card + "more from this maker / same craft /
+same district" rails, live shop grid, admin **Sellers** (approve / ask changes / reject / pause, private details, activity log),
+**Products to check**, **Category requests**. Checkout accepts only Insi House Originals products until phase 2 (no pooling of
+other sellers' money). Tests: `scripts/marketplace-test.mjs` 36/36, `scripts/security-test.mjs` 32/32 (local only).
+**To go live:** (1) owner says go; (2) run `node scripts/d1-remote.mjs db/migrations/0004_marketplace.sql` on the live D1 FIRST
+(the new code needs the `sellers` table; without it the build stops safely); (3) merge `security-review` + `marketplace` into `main`.
+
 ## 13. Technical structure (summary)
 - Keep: Cloudflare Pages + Functions + D1 + R2, Next.js static shell, admin console, customer accounts, security fixes (branch `security-review`).
 - Change: product, shop and category pages load data **live** from `/api` (Pages Function serves `/product/<slug>/` and

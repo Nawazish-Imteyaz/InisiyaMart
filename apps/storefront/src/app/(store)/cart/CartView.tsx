@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { formatInr, type Product, type Settings } from "@/data/catalog";
+import { formatInr, productLink, type Product, type Settings } from "@/data/catalog";
 import { cart, MAX_QTY, useCart } from "@/lib/cart";
 import { shippingFor, useLiveCatalog } from "@/lib/live";
 import { ProductArt } from "@/components/ProductArt";
@@ -36,14 +36,14 @@ export function CartView(props: { products: Product[]; settings: Settings }) {
         <ul className="cart-list">
           {ok.map(({ line, p }) => (
             <li key={p.slug} className="cart-line">
-              <Link href={`/product/${p.slug}/`} className={`cart-thumb tone-${p.tone}`} aria-label={p.name}>
+              <Link href={productLink(p.slug)} className={`cart-thumb tone-${p.tone}`} aria-label={p.name}>
                 {p.images[0]
                   // eslint-disable-next-line @next/next/no-img-element
                   ? <img src={p.images[0]} alt="" />
                   : <ProductArt art={p.art} size={56} light={["ink", "plum", "dusty"].includes(p.tone)} />}
               </Link>
               <div className="cart-info">
-                <Link href={`/product/${p.slug}/`} className="cart-name">{p.name}</Link>
+                <Link href={productLink(p.slug)} className="cart-name">{p.name}</Link>
                 <span className="muted">{formatInr(p.priceInr ?? 0)} each</span>
                 {!p.inStock && <span className="stock-out" style={{ alignSelf: "flex-start" }}>Out of stock: please remove</span>}
                 <div className="cart-actions">

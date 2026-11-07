@@ -21,7 +21,14 @@ const SORTS = [
 interface F { c: string; o: string; q: string; price: string; sort: string; stock: boolean; pers: boolean }
 const EMPTY: F = { c: "", o: "", q: "", price: "", sort: "", stock: false, pers: false };
 
-export function ShopGrid({ products, categories, occasions }: { products: Product[]; categories: Category[]; occasions: Occasion[] }) {
+export function ShopGrid({ products: built, categories: builtCats, occasions }: { products: Product[]; categories: Category[]; occasions: Occasion[] }) {
+  // Start with the catalogue built into the page, then switch to the live one (new makers' products appear at once).
+  const [products, setProducts] = useState(built);
+  const [categories, setCategories] = useState(builtCats);
+  useEffect(() => {
+    fetch("/api/catalog", { cache: "no-store" }).then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.source === "live") { setProducts(d.products); if (d.categories?.length) setCategories(d.categories); } }).catch(() => {});
+  }, []);
   const [f, setF] = useState<F>(EMPTY);
 
   // Filters live in the link (?c=, ?o=, ?q=, ?price=, ?sort=), so a filtered page can be shared on WhatsApp.
@@ -56,7 +63,7 @@ export function ShopGrid({ products, categories, occasions }: { products: Produc
         if (hi !== null && hi !== undefined && p.priceInr > hi) return false;
       }
       if (words.length) {
-        const hay = [p.name, p.craft, p.summary, p.collection, ...p.occasions.map((o) => occName.get(o) ?? o)].join(" ").toLowerCase();
+        const hay = [p.name, p.craft, p.summary, p.collection, p.technique ?? "", p.maker?.shop ?? "", p.maker?.district ?? "", p.maker?.state ?? "", ...p.occasions.map((o) => occName.get(o) ?? o)].join(" ").toLowerCase();
         if (!words.every((w) => hay.includes(w))) return false;
       }
       return true;

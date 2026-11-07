@@ -17,6 +17,7 @@ import { SettingsView } from "./views/Settings";
 import { Security } from "./views/Security";
 import { Activity } from "./views/Activity";
 import { PrintView } from "./views/Print";
+import { CategoryRequests, ReviewQueue, SellerList, SellerView } from "./views/Sellers";
 
 // ---------------- Toasts & current user (shared with all views) ----------------
 type Toast = { id: number; text: string; kind: "ok" | "err" };
@@ -261,6 +262,13 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
         { href: "/customers/deleted", label: "Deleted accounts", match: starts("/customers/deleted") },
       ],
     },
+    {
+      label: "Sellers", icon: "sparkle", items: [
+        { href: "/sellers", label: "All sellers", match: (r) => r === "/sellers" || /^\/sellers\/\d+/.test(r) },
+        { href: "/sellers/review", label: "Products to check", match: starts("/sellers/review") },
+        { href: "/sellers/categories", label: "Category requests", match: starts("/sellers/categories") },
+      ],
+    },
     { label: "Coupons", icon: "tag", href: "/coupons", match: starts("/coupons") },
     ...(owner
       ? [{
@@ -296,6 +304,10 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
   else if (section === "orders") { view = <OrderList />; title = "Orders"; }
   else if (section === "customers" && parts[1] && /^\d+$/.test(parts[1])) { view = <CustomerView id={Number(parts[1])} />; title = "Customer"; }
   else if (section === "customers") { view = <CustomerList tab={parts[1] === "deleted" ? "deleted" : parts[1] === "guests" ? "guests" : "registered"} />; title = parts[1] === "deleted" ? "Deleted accounts" : "Customers"; }
+  else if (section === "sellers" && parts[1] === "review") { view = <ReviewQueue />; title = "Products to check"; }
+  else if (section === "sellers" && parts[1] === "categories") { view = <CategoryRequests />; title = "Category requests"; }
+  else if (section === "sellers" && parts[1] && /^\d+$/.test(parts[1])) { view = <SellerView id={Number(parts[1])} />; title = "Seller"; }
+  else if (section === "sellers") { view = <SellerList />; title = "Sellers"; }
   else if (section === "enquiries") { view = <Enquiries />; title = "Event enquiries"; }
   else if (section === "coupons") { view = <Coupons />; title = "Coupons"; }
   else if (section === "integrations" && owner) { const g = (parts[1] ?? "payments") as "payments" | "shipping" | "messaging"; view = <Integrations group={g} />; title = g === "payments" ? "Payments" : g === "shipping" ? "Shipping & couriers" : "WhatsApp & SMS"; }

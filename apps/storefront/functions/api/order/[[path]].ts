@@ -6,10 +6,12 @@
 // Prices, stock, coupons and totals are always worked out here from the database, never trusted from the browser.
 import { emit } from "../../_lib/providers";
 import { currentCustomer, priceCoupon, saveAddress } from "../../_lib/shop";
+import { PRODUCT_JOIN, PUBLIC_PRODUCT } from "../../_lib/market";
 import { clientIp, EMAIL_RE, getSetting, isLocalPin, HttpError, int, json, mobile, readJson, sameOrigin, str, type Ctx, type D1Database } from "../../_lib/util";
 
 const MAX_ORDERS_PER_HOUR = 5;
 const MAX_OPEN_UNPAID = 2;
+const HOUSE_SELLER = 1;
 
 export const onRequest = async (ctx: Ctx): Promise<Response> => {
   try {
@@ -62,14 +64,19 @@ async function priceCart(db: D1Database, rawItems: unknown): Promise<{ items: Li
   }
   const slugs = [...wanted.keys()];
   const rows = await db
-    .prepare(`SELECT id, slug, name, price_inr, stock, track_stock, status FROM products WHERE slug IN (${slugs.map(() => "?").join(",")})`)
+    // Only products buyers may see (active, approved, shop approved): same rule as the catalogue.
+    .prepare(`SELECT p.id, p.slug, p.name, p.price_inr, p.stock, p.track_stock, p.status, COALESCE(p.seller_id, 1) AS seller_id, (${PUBLIC_PRODUCT}) AS visible
+              ${PRODUCT_JOIN} WHERE p.slug IN (${slugs.map(() => "?").join(",")})`)
     .bind(...slugs)
-    .all<{ id: number; slug: string; name: string; price_inr: number | null; stock: number; track_stock: number; status: string }>();
+    .all<{ id: number; slug: string; name: string; price_inr: number | null; stock: number; track_stock: number; status: string; seller_id: number; visible: number }>();
   const bySlug = new Map(rows.results.map((r) => [r.slug, r]));
   const items: Line[] = [];
   for (const [slug, qty] of wanted) {
     const p = bySlug.get(slug);
-    if (!p || p.status !== "active") throw new HttpError(409, "One of the gifts in your cart is no longer available. Please remove it and try again.");
+    if (!p || !p.visible) throw new HttpError(409, "One of the gifts in your cart is no longer available. Please remove it and try again.");
+    // Until split orders (marketplace phase 2), only the house shop's products can be paid here: Insi House must never
+    // collect money for other sellers into its own account (decision 010, plan §7).
+    if (p.seller_id !== HOUSE_SELLER) throw new HttpError(409, `"${p.name}" is from a maker's shop. Ordering from maker shops opens very soon. Please remove it to continue.`);
     if (p.price_inr === null) throw new HttpError(409, `"${p.name}" has no fixed price. Please ask us on WhatsApp.`);
     if (p.track_stock && p.stock < qty) {
       throw new HttpError(409, p.stock <= 0 ? `Sorry, "${p.name}" just went out of stock.` : `Sorry, only ${p.stock} of "${p.name}" left. Please lower the quantity.`);

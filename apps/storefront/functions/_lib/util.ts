@@ -160,7 +160,7 @@ export function checkPasswordStrength(pw: string, personal: string[] = []) {
   if (/^(0123456789|1234567890|9876543210)/.test(pw)) throw new HttpError(400, "Please don't use a simple number sequence");
   for (const p of personal) {
     const v = String(p ?? "").toLowerCase().split("@")[0];
-    if (v.length >= 6 && low.includes(v)) throw new HttpError(400, "Please don't use your mobile number or email in your password");
+    if (v.length >= 6 && low.includes(v)) throw new HttpError(400, "Please don't use your name, mobile number or email in your password");
   }
 }
 

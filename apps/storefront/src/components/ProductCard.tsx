@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatInr, formatPrice, type Product } from "@/data/catalog";
+import { formatInr, formatPrice, HOUSE_MAKER_SLUG, productLink, type Product } from "@/data/catalog";
 import { ProductArt } from "./ProductArt";
 import { WishButton } from "./WishButton";
 
@@ -10,7 +10,7 @@ export function offPercent(p: Product): number {
 }
 
 export function ProductCard({ p }: { p: Product }) {
-  const href = `/product/${p.slug}/`;
+  const href = productLink(p.slug);
   const photo = p.images[0];
   const off = offPercent(p);
   return (
@@ -33,7 +33,9 @@ export function ProductCard({ p }: { p: Product }) {
       </Link>
       <WishButton slug={p.slug} name={p.name} />
       <Link href={href} className="product-name">{p.name}</Link>
-      <span className="muted" style={{ fontSize: 13, marginBlockStart: -4 }}>{p.craft}{p.collection ? ` · ${p.collection}` : ""}</span>
+      <span className="muted" style={{ fontSize: 13, marginBlockStart: -4 }}>
+        {p.maker && p.maker.slug !== HOUSE_MAKER_SLUG ? <>by {p.maker.shop}{p.maker.district ? ` · ${p.maker.district}` : ""}</> : <>{p.craft}{p.collection ? ` · ${p.collection}` : ""}</>}
+      </span>
       <span className="product-price">
         {formatPrice(p)}
         {p.mrpInr !== null && p.priceInr !== null && p.mrpInr > p.priceInr && (

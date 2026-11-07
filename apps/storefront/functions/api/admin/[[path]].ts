@@ -8,6 +8,7 @@ import {
   coupons, customers, dashboard, enquiries, integrations, notifications, occasions, security, webhooks,
 } from "../../_lib/admin-more";
 import { emit } from "../../_lib/providers";
+import { categoryRequests, review, sellers } from "../../_lib/admin-market";
 
 const COOKIE = "ih_admin";
 const SESSION_DAYS = 7;
@@ -63,6 +64,9 @@ async function route(ctx: Ctx): Promise<Response> {
   if (a === "integrations") { requireOwner(user); return integrations(ctx, user, m, b, c); }
   if (a === "webhooks") { requireOwner(user); return webhooks(ctx, user, m, b, c); }
   if (a === "publish") return m === "POST" ? json(await publish(env, user, true)) : json(await publishState(env));
+  if (a === "sellers") return sellers(ctx, user, m, b);
+  if (a === "review") return review(ctx, user, m, b);
+  if (a === "category-requests") return categoryRequests(ctx, user, m, b);
   if (a === "categories") return categories(ctx, user, m, b, c);
   if (a === "products") return products(ctx, user, m, b, c);
   if (a === "images" && b && m === "DELETE") return deleteProductImage(ctx, user, b);
@@ -327,16 +331,17 @@ async function products(ctx: Ctx, user: User, m: string, b?: string, c?: string)
   if (!b && m === "GET") {
     const r = await db.prepare(
       `SELECT p.id, p.slug, p.name, p.price_inr, p.mrp_inr, p.stock, p.track_stock, p.status, p.collection, p.tone, p.art, p.updated_at,
-         c.name AS category_name, p.category_id,
+         c.name AS category_name, p.category_id, p.seller_id, p.review_status, sl.shop_name,
          (SELECT key FROM product_images i WHERE i.product_id = p.id ORDER BY sort, id LIMIT 1) AS image_key,
          (SELECT COUNT(*) FROM product_images i WHERE i.product_id = p.id) AS image_count
-       FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.sort, p.id DESC`,
+       FROM products p LEFT JOIN categories c ON c.id = p.category_id LEFT JOIN sellers sl ON sl.id = p.seller_id ORDER BY p.sort, p.id DESC`,
     ).all();
     return json({ products: r.results });
   }
 
   if (!b && m === "POST") {
     const v = await productValues(db, await readJson(req), true);
+    v.seller_id = 1; // Products added in the admin belong to the house shop "Insi House Originals".
     const cols = Object.keys(v);
     const r = await db.prepare(`INSERT INTO products (${cols.join(", ")}) VALUES (${cols.map(() => "?").join(", ")})`).bind(...cols.map((k) => v[k])).run();
     await log(db, user, "Created product", String(v.name));

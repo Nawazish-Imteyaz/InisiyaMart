@@ -37,6 +37,35 @@ export interface Product {
   /** Occasion slugs, e.g. ["haldi", "wedding-nikah"] */
   occasions: string[];
   createdAt?: string;
+  /** Marketplace (decision 010): public maker card + handmade details. */
+  maker?: Maker | null;
+  madeBy?: "me" | "family" | "group" | string;
+  technique?: string;
+  materials?: string;
+  madeToOrderDays?: number | null;
+}
+
+/** Public part of a seller. Private details (full name, address, phone, UPI, bank, PAN) are never sent to buyers. */
+export interface Maker {
+  slug: string;
+  shop: string;
+  name: string;
+  district: string;
+  state: string;
+  craft: string;
+  photo: string | null;
+  story?: string;
+  since?: string;
+}
+
+export const HOUSE_MAKER_SLUG = "insi-house-originals";
+
+export function makerLink(slug: string): string {
+  return `/maker/?s=${encodeURIComponent(slug)}`;
+}
+
+export function productLink(slug: string): string {
+  return `/product/?s=${encodeURIComponent(slug)}`;
 }
 
 export interface Occasion {

@@ -323,3 +323,20 @@ a.adm-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(43, 
   body.ih-autoprint .adm-shell { display: none !important; }
   body.ih-autoprint .adm-autoprint { display: block; }
 }
+
+/* ---------- Marketplace: sellers, products to check, category requests ---------- */
+.adm-mk-quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-block-end: 16px; }
+.adm-mk-quick .adm-card { display: flex; flex-direction: column; gap: 2px; text-decoration: none; color: inherit; text-align: start; font: inherit; cursor: pointer; margin: 0; }
+.adm-mk-quick b { font-size: 28px; }
+.adm-mk-quick span { font-size: 13px; font-weight: 700; opacity: 0.7; }
+.adm-tag.warn { background: #fde8c8; color: #8a4b06; }
+.adm-mk-private { margin: 16px 0 6px; font-size: 15px; }
+.adm-mk-prods, .adm-mk-log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.adm-mk-prods li { display: flex; align-items: center; gap: 12px; }
+.adm-mk-prods img, .adm-mk-noimg { inline-size: 52px; block-size: 52px; border-radius: 10px; object-fit: cover; flex: none; display: grid; place-items: center; background: rgba(0, 0, 0, 0.05); }
+.adm-mk-prods li > span:nth-child(2) { display: flex; flex-direction: column; flex: 1; min-inline-size: 0; }
+.adm-mk-log li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; border-block-end: 1px solid rgba(0, 0, 0, 0.06); padding-block-end: 8px; }
+.adm-mk-log small { opacity: 0.6; white-space: nowrap; }
+.adm-mk-photos { display: flex; gap: 8px; flex-wrap: wrap; }
+.adm-mk-photos img { inline-size: 110px; block-size: 110px; border-radius: 12px; object-fit: cover; }
+.adm-card .adm-row, .adm-enq-actions { flex-wrap: wrap; }

@@ -11,6 +11,7 @@ const links = [
   ...categories.slice(0, 3).map((c) => ({ href: shopLink(c.slug), label: c.name })),
   { href: "/occasions/", label: "Occasions" },
   { href: "/events/", label: "Weddings" },
+  { href: "/sell/", label: "Sell with us" },
 ];
 const mobileExtra = [
   ...categories.slice(3).map((c) => ({ href: shopLink(c.slug), label: c.name })),

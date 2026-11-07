@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { firstName, useAccount } from "@/lib/account";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
+import { productLink } from "@/data/catalog";
 
 export interface SearchItem { slug: string; name: string; craft: string; price: string; image: string | null; words: string }
 export interface QuickLink { label: string; href: string }
@@ -81,7 +82,7 @@ export function SearchButton({ items, quick }: { items: SearchItem[]; quick: Qui
             <ul className="search-results">
               {results.map((r) => (
                 <li key={r.slug}>
-                  <Link href={`/product/${r.slug}/`} onClick={close}>
+                  <Link href={productLink(r.slug)} onClick={close}>
                     <span className="sr-thumb">{r.image ? <img src={r.image} alt="" loading="lazy" /> : <Svg d={I.spark} />}</span>
                     <span className="sr-text"><b>{r.name}</b><small>{r.craft}</small></span>
                     <span className="sr-price">{r.price}</span>
@@ -125,7 +126,7 @@ export function MobileNav() {
   const { me } = useAccount();
   const tabs = [
     { href: "/", label: "Home", icon: I.home, on: path === "/" },
-    { href: "/shop/", label: "Shop", icon: I.grid, on: path.startsWith("/shop") || path.startsWith("/product") },
+    { href: "/shop/", label: "Shop", icon: I.grid, on: path.startsWith("/shop") || path.startsWith("/product") || path.startsWith("/maker") },
     { href: "/occasions/", label: "Occasions", icon: I.spark, on: path.startsWith("/occasion") || path.startsWith("/events") },
     { href: "/account/", label: me ? "Account" : "Login", icon: I.user, on: path.startsWith("/account") || path.startsWith("/wishlist") },
     { href: "/cart/", label: "Cart", icon: I.bag, on: path.startsWith("/cart") || path.startsWith("/checkout"), badge: count },
