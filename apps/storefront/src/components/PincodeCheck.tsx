@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { formatInr, settings } from "@/data/catalog";
+import { isLocalPin } from "@/lib/live";
 
 // Stage A: validates the PIN code and explains delivery. Real serviceability + dates come with Shiprocket (Stage B).
 export function PincodeCheck() {
@@ -10,7 +12,14 @@ export function PincodeCheck() {
   const check = (e: React.FormEvent) => {
     e.preventDefault();
     if (/^[1-9][0-9]{5}$/.test(pin)) {
-      setMsg({ ok: true, text: `Great! We deliver across India. Your delivery date for ${pin} is confirmed on WhatsApp when you order.` });
+      if (isLocalPin(settings, pin)) {
+        const free = settings.local_free_above ? ` Free above ${formatInr(Number(settings.local_free_above))}.` : "";
+        const fee = Number(settings.local_fee) === 0 ? "Free delivery." : `Delivery ${formatInr(Number(settings.local_fee))}.${free}`;
+        setMsg({ ok: true, text: `🛵 ${settings.local_label || "Our own delivery team"} delivers to ${pin}. ${fee}` });
+      } else {
+        const fee = settings.shipping_fee === "" ? "The delivery charge is shown at checkout." : Number(settings.shipping_fee) === 0 ? "Free delivery." : `Delivery ${formatInr(Number(settings.shipping_fee))}${settings.free_shipping_above ? `, free above ${formatInr(Number(settings.free_shipping_above))}` : ""}.`;
+        setMsg({ ok: true, text: `🚚 We deliver to ${pin} by courier, with tracking. ${fee} Your delivery date is confirmed when you order.` });
+      }
     } else {
       setMsg({ ok: false, text: "Please enter a valid 6-digit PIN code." });
     }

@@ -64,6 +64,11 @@ export interface Settings {
   require_login: string;
   cod_enabled: string;
   cod_fee: string;
+  /** PIN codes / prefixes delivered by the shop's own team, e.g. "276,275" */
+  local_pins: string;
+  local_fee: string;
+  local_free_above: string;
+  local_label: string;
 }
 
 interface LiveCatalog {
@@ -141,6 +146,10 @@ export const settings: Settings = {
   require_login: "0",
   cod_enabled: "0",
   cod_fee: "",
+  local_pins: "",
+  local_fee: "",
+  local_free_above: "",
+  local_label: "",
   ...Object.fromEntries(Object.entries(live?.settings ?? {}).filter(([, v]) => typeof v === "string" && v !== "")),
 };
 

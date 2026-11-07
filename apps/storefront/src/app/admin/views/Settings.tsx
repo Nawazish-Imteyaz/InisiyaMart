@@ -5,7 +5,9 @@ import { api } from "../lib";
 import { useAdmin } from "../AdminApp";
 import { Field, Loading, PageHead } from "./ui";
 
-type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string; shipping_fee: string; free_shipping_above: string; require_login: string; cod_enabled: string; cod_fee: string; hold_hours: string };
+type S = { whatsapp: string; email: string; announcement: string; delivery: string; instagram: string; upi_id: string; shipping_fee: string; free_shipping_above: string; require_login: string; cod_enabled: string; cod_fee: string; hold_hours: string;
+  local_pins: string; local_fee: string; local_free_above: string; local_label: string;
+  business_name: string; business_address: string; business_phone: string; gstin: string; invoice_note: string };
 
 export function SettingsView() {
   const { user, toast, fail } = useAdmin();
@@ -64,6 +66,35 @@ export function SettingsView() {
               <input maxLength={80} value={s.delivery} onChange={(e) => set("delivery", e.target.value)} />
             </Field>
           </div>
+          <h2 style={{ marginBlockStart: 24 }}>Local delivery by your own team</h2>
+          <p className="adm-muted" style={{ marginBlockStart: -6 }}>PIN codes you deliver yourself (e.g. Azamgarh). Everyone else gets the courier charge above. Leave empty to use couriers for all.</p>
+          <div className="adm-grid">
+            <Field label="Local PIN codes" wide hint="Full PIN codes or their first digits, separated by commas. 276 = every PIN starting 276 (Azamgarh area).">
+              <input maxLength={400} value={s.local_pins} onChange={(e) => set("local_pins", e.target.value.replace(/[^0-9,\s]/g, ""))} placeholder="e.g. 276, 275101" />
+            </Field>
+            <Field label="Local delivery charge (₹)" hint="0 = free. Empty = local delivery is off.">
+              <input inputMode="numeric" maxLength={6} value={s.local_fee} onChange={(e) => set("local_fee", e.target.value.replace(/[^0-9]/g, ""))} placeholder="e.g. 40" />
+            </Field>
+            <Field label="Free local delivery above (₹)">
+              <input inputMode="numeric" maxLength={7} value={s.local_free_above} onChange={(e) => set("local_free_above", e.target.value.replace(/[^0-9]/g, ""))} placeholder="e.g. 999" />
+            </Field>
+            <Field label="Name shown to customers" hint="Also saved as the “courier” on the order.">
+              <input maxLength={60} value={s.local_label} onChange={(e) => set("local_label", e.target.value)} placeholder="Insi House delivery (Azamgarh)" />
+            </Field>
+          </div>
+
+          <h2 style={{ marginBlockStart: 24 }}>Details printed on bills</h2>
+          <p className="adm-muted" style={{ marginBlockStart: -6 }}>Only used on printed bills; not shown on the website.</p>
+          <div className="adm-grid">
+            <Field label="Business name"><input maxLength={100} value={s.business_name} onChange={(e) => set("business_name", e.target.value)} placeholder="Insi House" /></Field>
+            <Field label="Phone on bill"><input maxLength={30} value={s.business_phone} onChange={(e) => set("business_phone", e.target.value)} /></Field>
+            <Field label="Address" wide><textarea rows={2} maxLength={400} value={s.business_address} onChange={(e) => set("business_address", e.target.value)} /></Field>
+            <Field label="GSTIN (if registered)" hint="When filled, the bill is titled “Tax invoice”. Empty = a simple “Bill”. Ask your CA what your bills must show.">
+              <input maxLength={15} value={s.gstin} onChange={(e) => set("gstin", e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, ""))} placeholder="15 characters" />
+            </Field>
+            <Field label="Note at the bottom of the bill" wide><input maxLength={300} value={s.invoice_note} onChange={(e) => set("invoice_note", e.target.value)} placeholder="Thank you for supporting handmade! ✦" /></Field>
+          </div>
+
           <h2 style={{ marginBlockStart: 24 }}>Checkout</h2>
           <div className="adm-grid">
             <label className="adm-check wide">

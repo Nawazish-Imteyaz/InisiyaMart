@@ -32,7 +32,9 @@ export const onRequestPost = async (ctx: Ctx): Promise<Response> => {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
       .bind(name, phone, email, occasion, eventDate, quantity, budget, city, message, me?.id ?? null, ip)
       .run();
-    emit(ctx, "enquiry.created", { id: r.meta.last_row_id, name, occasion, event_date: eventDate, quantity, budget, city });
+    emit(ctx, "enquiry.created", { id: r.meta.last_row_id, name, occasion, event_date: eventDate, quantity, budget, city },
+      [`✨ New enquiry from ${name}`, [occasion, eventDate, quantity ? `${quantity} gifts` : "", budget, city].filter(Boolean).join(" · "),
+        message ? `“${message.slice(0, 200)}”` : "", `Reply: https://wa.me/91${phone}`].filter(Boolean).join("\n"));
     return json({ ok: true }, 201);
   } catch (e) {
     if (e instanceof HttpError) return json({ error: e.message }, e.status);

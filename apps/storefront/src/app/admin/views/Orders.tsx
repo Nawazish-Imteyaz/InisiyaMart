@@ -26,7 +26,52 @@ function hashQuery(): URLSearchParams {
 const payLabel = (v: string) => PAY_STATUS.find((p) => p.value === v)?.label ?? v;
 
 // ============================ List ============================
+/** Opens the print screen for every order still marked New (the day's packing batch). */
+function PrintNewButton() {
+  const { fail, toast } = useAdmin();
+  return (
+    <button className="adm-btn" onClick={async () => {
+      try {
+        const r = await api<{ orders: OrderRow[] }>("orders?status=new");
+        if (!r.orders.length) { toast("No new orders to print"); return; }
+        window.open(`/admin/#/print/${r.orders.slice(0, 50).map((o) => o.id).join(",")}`, "_blank", "noopener");
+      } catch (e) { fail(e); }
+    }}>🖨 Print new orders</button>
+  );
+}
+
+/** Downloads orders as a CSV file that opens in Excel or Google Sheets. */
+function ExportButton() {
+  const { fail } = useAdmin();
+  const [open, setOpen] = useState(false);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  async function download() {
+    try {
+      const res = await fetch(`/api/admin/orders/export?from=${from}&to=${to}`, { credentials: "same-origin", headers: { "x-requested-with": "insihouse" } });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? `Error ${res.status}`);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ?? "orders.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      setOpen(false);
+    } catch (e) { fail(e); }
+  }
+  if (!open) return <button className="adm-btn" onClick={() => setOpen(true)}>⬇ Excel</button>;
+  return (
+    <span className="adm-export">
+      <label>From <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+      <label>To <input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></label>
+      <button className="adm-btn primary small" onClick={download}>Download</button>
+      <button className="adm-btn ghost small" onClick={() => setOpen(false)}>✕</button>
+    </span>
+  );
+}
+
 export function OrderList() {
+  const { user } = useAdmin();
   const [status, setStatusRaw] = useState(() => (typeof window === "undefined" ? "" : hashQuery().get("status") ?? ""));
   const [pay, setPay] = useState(() => (typeof window === "undefined" ? "" : hashQuery().get("pay") ?? ""));
   const setStatus = (v: string) => { setStatusRaw(v); setPay(""); };
@@ -46,7 +91,11 @@ export function OrderList() {
       <PageHead
         title="Orders"
         sub="Every order from WhatsApp, phone or the website. Update the status as you pack and ship."
-        actions={<a className="adm-btn primary" href="#/orders/new">+ Add order</a>}
+        actions={<>
+          <PrintNewButton />
+          {user.role === "owner" && <ExportButton />}
+          <a className="adm-btn primary" href="#/orders/new">+ Add order</a>
+        </>}
       />
       <div className="adm-tabs" role="tablist">
         <button role="tab" aria-selected={status === "" && !pay} onClick={() => setStatus("")}>All</button>
@@ -136,6 +185,7 @@ export function OrderView({ id }: { id: number }) {
         sub={`Created ${when(data.order.created_at)} · from ${data.order.source}`}
         actions={<>
           <a className="adm-btn" href="#/orders">← Orders</a>
+          <a className="adm-btn" href={`#/print/${id}`}>🖨 Print bill</a>
           {phone && <a className="adm-btn" href={`https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener noreferrer">Send update on WhatsApp</a>}
         </>}
       />

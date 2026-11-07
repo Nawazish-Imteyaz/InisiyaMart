@@ -93,6 +93,16 @@ export const PROVIDERS: ProviderDef[] = [
     testable: true, readiness: "ready",
   },
   {
+    id: "telegram", group: "messaging", name: "Telegram alerts (for you)", signup: "https://telegram.org/",
+    blurb: "Free instant alert on your phone for every new order, payment and enquiry, even when the admin is closed.",
+    uses: "When switched on, you get a Telegram message for each new order and enquiry. Free, no limits for this use.",
+    fields: [
+      { key: "bot_token", label: "Bot token", secret: true, hint: "In Telegram, open @BotFather → /newbot → copy the token it gives you." },
+      { key: "chat_id", label: "Your chat ID", optional: true, hint: "Send any message to your new bot, then press “Test connection”: it shows your chat ID to paste here. For a family group, add the bot to the group first." },
+    ],
+    testable: true, readiness: "ready",
+  },
+  {
     id: "msg91", group: "messaging", name: "MSG91 (SMS OTP)", signup: "https://msg91.com/signup",
     blurb: "SMS login codes, DLT-approved for India. Used if WhatsApp is not set up.",
     uses: "When switched on, customers can log in with an SMS code.",
@@ -155,6 +165,18 @@ export async function testIntegration(env: Env, id: string): Promise<{ ok: boole
       });
       const d = (await r.json().catch(() => ({}))) as { display_phone_number?: string; verified_name?: string };
       return r.ok ? { ok: true, message: `Connected: ${d.verified_name ?? ""} ${d.display_phone_number ?? ""}`.trim() } : { ok: false, message: `Meta said HTTP ${r.status}. Check the phone number ID and token.` };
+    }
+    if (id === "telegram") {
+      const tok = encodeURIComponent(val(i, "bot_token"));
+      const me = await fetch(`https://api.telegram.org/bot${tok}/getMe`, { signal: timeout });
+      if (!me.ok) return { ok: false, message: "Telegram did not accept the bot token. Copy it again from @BotFather." };
+      if (!val(i, "chat_id")) {
+        const up = (await (await fetch(`https://api.telegram.org/bot${tok}/getUpdates?limit=10`, { signal: timeout })).json().catch(() => ({}))) as { result?: { message?: { chat?: { id: number; title?: string; first_name?: string } } }[] };
+        const chat = up.result?.map((u) => u.message?.chat).filter(Boolean).pop();
+        return chat ? { ok: false, message: `Bot works. Your chat ID is ${chat.id} (${chat.title ?? chat.first_name ?? ""}): paste it in “Your chat ID” and save.` } : { ok: false, message: "Bot works. Now send any message to your bot in Telegram, then press Test again to get your chat ID." };
+      }
+      const send = await telegram(i, "✅ Insi House alerts are connected. You'll get a message for every new order.");
+      return send ? { ok: true, message: "Test message sent to Telegram." } : { ok: false, message: "Could not send to that chat ID. Check it, and make sure you messaged the bot first." };
     }
     return { ok: false, message: "A connection test is not available for this partner yet." };
   } catch (e) {
@@ -227,10 +249,29 @@ export async function newHookSecret(env: Env): Promise<{ plain: string; stored: 
   return { plain, stored: await encryptJson(env, "webhook", { s: plain }) };
 }
 
-/** Sends `event` to every active webhook that listens for it. Runs after the response (waitUntil). */
-export function emit(ctx: Ctx, event: string, data: Record<string, unknown>) {
+async function telegram(i: Integration, text: string): Promise<boolean> {
+  const r = await fetch(`https://api.telegram.org/bot${encodeURIComponent(val(i, "bot_token"))}/sendMessage`, {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ chat_id: val(i, "chat_id"), text: text.slice(0, 3500), disable_web_page_preview: true }),
+    signal: AbortSignal.timeout(10_000),
+  }).catch(() => null);
+  return !!r?.ok;
+}
+
+/**
+ * Sends `event` to every active webhook that listens for it, and (if `alert` is given) a Telegram alert
+ * to the owner. Runs after the response (waitUntil), so it never slows the customer down.
+ */
+export function emit(ctx: Ctx, event: string, data: Record<string, unknown>, alert?: string) {
   ctx.waitUntil((async () => {
     const env = ctx.env;
+    if (alert) {
+      const tg = await loadIntegration(env, "telegram");
+      if (tg && val(tg, "bot_token") && val(tg, "chat_id")) {
+        const sent = await telegram(tg, alert);
+        if (!sent) await env.DB.prepare("INSERT INTO webhook_log (direction, source, event, ok, status, detail) VALUES ('out', 'telegram', ?, 0, 0, 'Alert could not be sent')").bind(event).run();
+      }
+    }
     const hooks = await env.DB.prepare("SELECT id, name, url, events, secret FROM webhooks WHERE active = 1").all<{ id: number; name: string; url: string; events: string; secret: string }>();
     for (const h of hooks.results) {
       const events = h.events.split(",").map((s) => s.trim());

@@ -75,7 +75,7 @@ async function razorpay({ request: req, env, ...rest }: Ctx): Promise<Response> 
         db.prepare("UPDATE orders SET payment_status = 'paid', payment_method = 'razorpay', payment_ref = ?, updated_at = datetime('now') WHERE id = ?").bind(String(pay.id ?? ""), o.id),
         db.prepare("INSERT INTO order_events (order_id, status, note, user_name) VALUES (?, ?, ?, 'Razorpay')").bind(o.id, o.status, `Paid ₹${paidRupees} online (${pay.id ?? ""})`),
       ]);
-      emit(ctx, "order.paid", { number: o.number, amount: paidRupees, via: "razorpay" });
+      emit(ctx, "order.paid", { number: o.number, amount: paidRupees, via: "razorpay" }, `✅ ${o.number} PAID online · ₹${paidRupees} (Razorpay ${pay.id ?? ""})`);
       detail = `${o.number} marked Paid (₹${paidRupees})`;
     } else if (paidRupees < o.total) {
       await db.prepare("INSERT INTO order_events (order_id, status, note, user_name) VALUES (?, ?, ?, 'Razorpay')")

@@ -270,3 +270,4 @@ button.icon-btn { border: 0; background: none; padding: 0; cursor: pointer; font
 .footer .btn-light, .footer .btn-light:hover { color: var(--plum); }
 .btn-outline.on-dark { background: rgba(43, 27, 34, 0.22); }
 .btn-outline.on-dark:hover { background: rgba(43, 27, 34, 0.34); }
+.local-note { margin: 0; padding: 8px 12px; border-radius: 12px; background: #e6f4f3; color: #0c5d62; font-weight: 700; font-size: 14px; }

@@ -263,3 +263,63 @@ a.adm-kpi:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(43, 
 .adm .adm-nav-item:hover { color: #fff; }
 .adm .adm-nav-item.active { color: var(--a-plum); }
 .adm .adm-side-foot .adm-nav-item { color: #ffd9e4; }
+
+/* ---------- Alerts menu, export ---------- */
+.adm-pop-sec { display: flex; flex-direction: column; gap: 8px; padding: 10px 16px 12px; border-block: 1px solid var(--a-line); }
+.adm-pop-sec > small { font-size: 11.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--a-muted); }
+.adm-pop-sec .adm-check { font-size: 14px; font-weight: 600; }
+.adm-export { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 8px; border-radius: 14px; background: #fff; border: 1px solid var(--a-line); }
+.adm-export label { display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; }
+.adm-export input { inline-size: auto !important; min-block-size: 36px !important; padding: 4px 8px !important; }
+
+/* ---------- Bill + packing slip ---------- */
+.adm-print-root { background: #ece6e3; min-block-size: 100dvh; padding: 20px 12px 60px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.adm-print-toolbar { position: sticky; inset-block-start: 10px; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgba(43, 27, 34, 0.12); }
+.adm-print-order { display: flex; flex-direction: column; gap: 20px; }
+.pr-page { inline-size: min(794px, 100%); min-block-size: 560px; padding: 36px 40px; background: #fff; color: #111; box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); font-size: 13.5px; line-height: 1.45; display: flex; flex-direction: column; gap: 16px; }
+.pr-pre { white-space: pre-line; }
+.pr-head { display: flex; justify-content: space-between; gap: 20px; border-block-end: 2px solid #111; padding-block-end: 12px; }
+.pr-head > div { display: flex; flex-direction: column; gap: 2px; }
+.pr-brand { font-family: var(--font-display), serif; font-size: 26px; letter-spacing: 0.08em; color: #6b2142; }
+.pr-title { text-align: end; align-items: flex-end; }
+.pr-title > b { font-size: 18px; letter-spacing: 0.12em; }
+.pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pr-parties > div { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; }
+.pr-parties small, .pr-shipto small, .pr-from small, .pr-card small, .pr-notes small { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; color: #555; }
+.pr-table { inline-size: 100%; border-collapse: collapse; }
+.pr-table th { text-align: start; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; border-block-end: 1.5px solid #111; padding: 6px 8px; }
+.pr-table td { padding: 7px 8px; border-block-end: 1px solid #ddd; }
+.pr-table th:nth-last-child(-n+3), .pr-table td:nth-last-child(-n+3) { text-align: end; }
+.pr-check th:nth-last-child(-n+3), .pr-check td:nth-last-child(-n+3) { text-align: start; }
+.pr-check td:last-child, .pr-check th:last-child { text-align: end; }
+.pr-table tfoot td { border: 0; padding-block: 4px; }
+.pr-table tfoot td:first-child { text-align: end; }
+.pr-total td { font-size: 16px; font-weight: 800; border-block-start: 2px solid #111 !important; padding-block-start: 8px !important; }
+.pr-small { margin: 0; font-size: 11.5px; color: #555; }
+.pr-note { margin: auto 0 0; text-align: center; font-style: italic; color: #6b2142; }
+.pr-slip-head { display: flex; justify-content: space-between; align-items: center; border-block-end: 2px dashed #111; padding-block-end: 10px; }
+.pr-slip-head b { letter-spacing: 0.14em; }
+.pr-big { font-size: 28px; font-weight: 800; }
+.pr-shipto { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; border: 2.5px solid #111; border-radius: 10px; font-size: 17px; }
+.pr-shipto b { font-size: 22px; }
+.pr-pin { font-size: 24px; font-weight: 800; letter-spacing: 0.08em; }
+.pr-from { display: flex; flex-direction: column; font-size: 12px; color: #333; }
+.pr-box { display: inline-block; inline-size: 16px; block-size: 16px; border: 1.5px solid #111; border-radius: 3px; }
+.pr-flags { display: flex; flex-wrap: wrap; gap: 8px; }
+.pr-flag { padding: 4px 10px; border: 1.5px solid #111; border-radius: 999px; font-weight: 800; font-size: 12.5px; }
+.pr-flag.warn { background: #ffe9a8; }
+.pr-card { padding: 12px 14px; border: 1.5px dashed #6b2142; border-radius: 10px; }
+.pr-card p { margin: 4px 0 0; font-size: 18px; font-family: var(--font-display), serif; }
+.pr-notes p { margin: 4px 0 0; }
+.adm-autoprint { display: none; }
+@media print {
+  @page { size: A4; margin: 10mm; }
+  body { background: #fff !important; }
+  .adm-print-toolbar, .adm-toasts { display: none !important; }
+  .adm-print-root { background: #fff; padding: 0; display: block; }
+  .adm-print-order { display: block; }
+  .pr-page { box-shadow: none; inline-size: 100%; min-block-size: 0; padding: 0; break-after: page; page-break-after: always; }
+  .adm-print-order:last-child .pr-page:last-child { break-after: auto; page-break-after: auto; }
+  body.ih-autoprint .adm-shell { display: none !important; }
+  body.ih-autoprint .adm-autoprint { display: block; }
+}

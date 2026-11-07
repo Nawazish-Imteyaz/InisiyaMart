@@ -294,4 +294,14 @@ export async function totpOk(secret: string, code: unknown): Promise<boolean> {
 export const PUBLIC_SETTINGS = [
   "whatsapp", "email", "announcement", "delivery", "instagram", "upi_id", "shipping_fee", "free_shipping_above",
   "require_login", "cod_enabled", "cod_fee", "hold_hours",
+  "local_pins", "local_fee", "local_free_above", "local_label",
 ] as const;
+
+/** Admin-only settings (printed on bills, never sent to the website). */
+export const PRIVATE_SETTINGS = ["business_name", "business_address", "business_phone", "gstin", "invoice_note"] as const;
+
+/** Is this PIN code served by the shop's own delivery team? `local_pins` holds prefixes like "276,275". */
+export function isLocalPin(localPins: string, pincode: string): boolean {
+  const pin = String(pincode ?? "");
+  return localPins.split(",").map((s) => s.trim()).filter((s) => /^[0-9]{2,6}$/.test(s)).some((p) => pin.startsWith(p));
+}

@@ -16,6 +16,7 @@ import { Team } from "./views/Team";
 import { SettingsView } from "./views/Settings";
 import { Security } from "./views/Security";
 import { Activity } from "./views/Activity";
+import { PrintView } from "./views/Print";
 
 // ---------------- Toasts & current user (shared with all views) ----------------
 type Toast = { id: number; text: string; kind: "ok" | "err" };
@@ -173,6 +174,41 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
   const autoTried = useRef(0);
   const owner = user.role === "owner";
 
+  // ---- New-order alerts (sound, phone/computer notification, auto-print) while the admin is open ----
+  const isPrint = path.startsWith("/print/");
+  const [alerts, setAlertsState] = useState<Alerts>({ sound: false, notify: false, autoprint: false });
+  const [autoIds, setAutoIds] = useState<number[] | null>(null);
+  const seen = useRef<Set<number> | null>(null);
+  useEffect(() => { try { setAlertsState({ sound: false, notify: false, autoprint: false, ...JSON.parse(localStorage.getItem("ih-adm-alerts") ?? "{}") }); } catch { /* ignore */ } }, []);
+  const setAlerts = useCallback((a: Alerts) => {
+    setAlertsState(a);
+    try { localStorage.setItem("ih-adm-alerts", JSON.stringify(a)); } catch { /* ignore */ }
+    if (a.sound) beep(true);
+    if (a.notify && "Notification" in window && Notification.permission === "default") Notification.requestPermission().catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (!bell || isPrint) return;
+    const ids = bell.items.filter((i) => i.kind === "order").map((i) => i.id);
+    if (seen.current === null) { seen.current = new Set(ids); return; }
+    const fresh = ids.filter((id) => !seen.current!.has(id));
+    fresh.forEach((id) => seen.current!.add(id));
+    if (!fresh.length) return;
+    const first = bell.items.find((i) => i.kind === "order" && i.id === fresh[0]);
+    toast(`🛍️ New order${fresh.length > 1 ? `s (${fresh.length})` : ` ${first?.title ?? ""}`}!`);
+    if (alerts.sound) beep();
+    if (alerts.notify && "Notification" in window && Notification.permission === "granted") {
+      try { new Notification("New Insi House order", { body: fresh.length > 1 ? `${fresh.length} new orders` : `${first?.title ?? ""} · ${first?.sub ?? ""}`, tag: "ih-order" }); } catch { /* ignore */ }
+    }
+    if (alerts.autoprint) setAutoIds(fresh);
+  }, [bell, isPrint, alerts, toast]);
+  useEffect(() => {
+    document.body.classList.toggle("ih-autoprint", !!autoIds);
+    if (!autoIds) return;
+    const done = () => setAutoIds(null);
+    window.addEventListener("afterprint", done);
+    return () => window.removeEventListener("afterprint", done);
+  }, [autoIds]);
+
   const refreshPublish = useCallback(() => { api<PublishState>("publish").then(setPub).catch(() => {}); }, []);
   const refreshBell = useCallback(() => { api<Bell>("notifications").then(setBell).catch(() => {}); }, []);
 
@@ -181,7 +217,7 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
     refreshPublish();
     refreshBell();
     const t = window.setInterval(refreshPublish, 30_000);
-    const b = window.setInterval(refreshBell, 60_000);
+    const b = window.setInterval(refreshBell, 30_000);
     return () => { window.clearInterval(t); window.clearInterval(b); };
   }, [refreshPublish, refreshBell]);
   // Keep the website in sync: if changes are waiting and the 3-minute gap has passed, refresh automatically.
@@ -272,6 +308,17 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
 
   const bellTotal = (c?.orders ?? 0) + (c?.utr ?? 0) + (c?.enquiries ?? 0);
 
+  if (isPrint) {
+    const q = new URLSearchParams(route.split("?")[1] ?? "");
+    const ids = (parts[1] ?? "").split(",").map(Number).filter((n) => Number.isInteger(n) && n > 0).slice(0, 50);
+    const w = q.get("what");
+    return (
+      <Ctx.Provider value={{ user, toast, fail, refreshPublish, refreshBell }}>
+        <PrintView ids={ids} what={w === "bill" || w === "slip" ? w : "both"} auto={q.get("auto") === "1"} />
+      </Ctx.Provider>
+    );
+  }
+
   return (
     <Ctx.Provider value={{ user, toast, fail, refreshPublish, refreshBell }}>
       <div className={`adm-shell${collapsed ? " collapsed" : ""}`}>
@@ -335,11 +382,12 @@ function Shell({ user, onLogout, toast, fail }: { user: AdminUser; onLogout: () 
               } catch (e) { fail(e); }
             }} />
             <BellMenu bell={bell} total={bellTotal} />
-            <UserMenu user={user} onLogout={logout} />
+            <UserMenu user={user} onLogout={logout} alerts={alerts} setAlerts={setAlerts} />
           </header>
           <div className="adm-content">{view}</div>
         </div>
       </div>
+      {autoIds && <div className="adm-autoprint"><PrintView ids={autoIds} what="both" auto /></div>}
     </Ctx.Provider>
   );
 }
@@ -393,7 +441,29 @@ function BellMenu({ bell, total }: { bell: Bell | null; total: number }) {
   );
 }
 
-function UserMenu({ user, onLogout }: { user: AdminUser; onLogout: () => void }) {
+interface Alerts { sound: boolean; notify: boolean; autoprint: boolean }
+
+let audio: AudioContext | null = null;
+/** A short two-note chime (no sound file needed). `unlock` is called from a click so browsers allow sound later. */
+function beep(unlock = false) {
+  try {
+    audio = audio ?? new AudioContext();
+    if (unlock && audio.state === "suspended") audio.resume();
+    [660, 880].forEach((f, i) => {
+      const o = audio!.createOscillator();
+      const g = audio!.createGain();
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, audio!.currentTime + i * 0.18);
+      g.gain.exponentialRampToValueAtTime(0.25, audio!.currentTime + i * 0.18 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, audio!.currentTime + i * 0.18 + 0.3);
+      o.connect(g).connect(audio!.destination);
+      o.start(audio!.currentTime + i * 0.18);
+      o.stop(audio!.currentTime + i * 0.18 + 0.32);
+    });
+  } catch { /* no sound available */ }
+}
+
+function UserMenu({ user, onLogout, alerts, setAlerts }: { user: AdminUser; onLogout: () => void; alerts: Alerts; setAlerts: (a: Alerts) => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
@@ -410,6 +480,12 @@ function UserMenu({ user, onLogout }: { user: AdminUser; onLogout: () => void })
           <div className="adm-pop-head"><b>{user.name}</b><small>{user.email}</small></div>
           <a role="menuitem" href="#/security" onClick={close}><Icon name="shield" size={18} /> Security {user.totp ? <span className="adm-tag ok">2-step on</span> : <span className="adm-tag warn">2-step off</span>}</a>
           <a role="menuitem" href="#/settings" onClick={close}><Icon name="key" size={18} /> Change password</a>
+          <div className="adm-pop-sec">
+            <small>New-order alerts on this device</small>
+            <label className="adm-check"><input type="checkbox" checked={alerts.sound} onChange={(e) => setAlerts({ ...alerts, sound: e.target.checked })} /><span>Play a sound</span></label>
+            <label className="adm-check"><input type="checkbox" checked={alerts.notify} onChange={(e) => setAlerts({ ...alerts, notify: e.target.checked })} /><span>Show a notification</span></label>
+            <label className="adm-check"><input type="checkbox" checked={alerts.autoprint} onChange={(e) => setAlerts({ ...alerts, autoprint: e.target.checked })} /><span>Auto-print bill + packing slip <small>Opens the print window when an order arrives (keep this admin tab open).</small></span></label>
+          </div>
           <a role="menuitem" href="/" target="_blank" rel="noopener noreferrer" onClick={close}><Icon name="external" size={18} /> View website</a>
           <button role="menuitem" className="danger" onClick={onLogout}><Icon name="logout" size={18} /> Log out</button>
         </div>

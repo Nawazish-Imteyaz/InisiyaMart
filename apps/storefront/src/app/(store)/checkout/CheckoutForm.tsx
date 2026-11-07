@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatInr, type Occasion, type Product, type Settings } from "@/data/catalog";
 import { cart, saveLastOrder, useCart } from "@/lib/cart";
-import { shippingFor, useLiveCatalog } from "@/lib/live";
+import { deliveryFor, useLiveCatalog } from "@/lib/live";
 import { accountApi, firstName, logout, useAccount } from "@/lib/account";
 import { LoginBox } from "@/components/LoginBox";
 import { AddressFields, addrProblem, emptyAddr, type Addr, type SavedAddress } from "@/components/AddressFields";
@@ -59,7 +59,8 @@ export function CheckoutForm(props: { products: Product[]; settings: Settings; o
     .map((l) => ({ line: l, p: products.find((x) => x.slug === l.slug) }))
     .filter((r): r is { line: typeof r.line; p: Product } => !!r.p && r.p.priceInr !== null);
   const subtotal = rows.reduce((s, r) => s + r.line.qty * (r.p.priceInr ?? 0), 0);
-  const shipping = shippingFor(settings, subtotal);
+  const chosenPin = (me && pick !== "new" ? saved?.find((a) => a.id === pick)?.pincode : addr.pincode) ?? "";
+  const { fee: shipping, local } = deliveryFor(settings, subtotal, chosenPin);
   const fee = pay === "cod" ? codFee : 0;
   const discount = applied?.discount ?? 0;
   const total = Math.max(0, subtotal + (shipping ?? 0) + fee - discount);
@@ -243,6 +244,7 @@ export function CheckoutForm(props: { products: Product[]; settings: Settings; o
         </div>
         <div className="sum-row"><span>Items ({rows.reduce((s, r) => s + r.line.qty, 0)})</span><b>{formatInr(subtotal)}</b></div>
         {discount > 0 && <div className="sum-row save"><span>Coupon discount</span><b>−{formatInr(discount)}</b></div>}
+        {local && <p className="local-note">🛵 {settings.local_label || "Our own delivery team"} delivers to {chosenPin}</p>}
         <div className="sum-row"><span>Delivery</span><b>{shipping === null ? "Confirmed on WhatsApp" : shipping === 0 ? <span className="free">FREE</span> : formatInr(shipping)}</b></div>
         {fee > 0 && <div className="sum-row"><span>Cash on delivery fee</span><b>{formatInr(fee)}</b></div>}
         <div className="sum-row total"><span>Total</span><b>{formatInr(total)}</b></div>

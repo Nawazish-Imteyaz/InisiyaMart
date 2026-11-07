@@ -1,6 +1,6 @@
 // /api/admin/* — the admin console API. Every route except login needs a valid session cookie.
 import {
-  bool, clientIp, hashPassword, HttpError, int, json, oneOf, PUBLIC_SETTINGS, randomHex, readCookie, readJson, safeEqual,
+  bool, clientIp, hashPassword, HttpError, int, json, oneOf, PRIVATE_SETTINGS, PUBLIC_SETTINGS, randomHex, readCookie, readJson, safeEqual,
   setSetting, sha256, str, totpStep, type Ctx, type D1Database, type Env,
 } from "../../_lib/util";
 import { contentChanged, idParam, log, publish, publishState, readImage, requireOwner, uniqueSlug, type Role, type User } from "../../_lib/admin-core";
@@ -428,6 +428,7 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
   const { env, request: req } = ctx;
   const db = env.DB;
 
+  if (b === "export" && m === "GET") return exportOrders(ctx, user);
   if (!b && m === "GET") {
     const url = new URL(req.url);
     const status = url.searchParams.get("status") ?? "";
@@ -541,11 +542,43 @@ async function orders(ctx: Ctx, user: User, m: string, b?: string): Promise<Resp
   throw new HttpError(405, "Not allowed");
 }
 
+/** Orders as a CSV file that opens in Excel / Google Sheets. Owner only (it has customer phone numbers). */
+async function exportOrders(ctx: Ctx, user: User): Promise<Response> {
+  requireOwner(user);
+  const url = new URL(ctx.request.url);
+  const from = url.searchParams.get("from") ?? "";
+  const to = url.searchParams.get("to") ?? "";
+  const where: string[] = [];
+  const vals: unknown[] = [];
+  if (/^\d{4}-\d{2}-\d{2}$/.test(from)) { where.push("date(created_at, '+330 minutes') >= ?"); vals.push(from); }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(to)) { where.push("date(created_at, '+330 minutes') <= ?"); vals.push(to); }
+  const r = await ctx.env.DB.prepare(`SELECT * FROM orders ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY id LIMIT 20000`).bind(...vals).all<Record<string, unknown>>();
+  // Cells starting with = + - @ are prefixed so Excel never runs them as formulas.
+  const cell = (v: unknown) => {
+    let t = v === null || v === undefined ? "" : String(v);
+    if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+    return `"${t.replace(/"/g, '""')}"`;
+  };
+  const head = ["Order", "Date (IST)", "Status", "Payment", "Method", "UTR / payment ref", "Customer", "Mobile", "Email", "Address", "City", "State", "PIN",
+    "Items", "Subtotal", "Delivery", "Discount", "Coupon", "Total", "Occasion", "Courier", "Tracking no.", "Source", "Gift message"];
+  const ist = (s: unknown) => { const d = new Date(`${String(s).replace(" ", "T")}Z`); return Number.isNaN(d.getTime()) ? String(s) : new Date(d.getTime() + 330 * 60_000).toISOString().slice(0, 16).replace("T", " "); };
+  const rows = r.results.map((o) => [
+    o.number, ist(o.created_at), o.status, o.payment_status, o.payment_method, o.payment_ref, o.customer_name, o.phone, o.email, o.address, o.city, o.state, o.pincode,
+    (JSON.parse(String(o.items || "[]")) as { name: string; qty: number; priceInr: number }[]).map((i) => `${i.name} x${i.qty} @${i.priceInr}`).join("; "),
+    o.subtotal, o.shipping, o.discount, o.coupon_code, o.total, o.occasion, o.courier, o.awb, o.source, o.gift_message,
+  ].map(cell).join(","));
+  await log(ctx.env.DB, user, "Exported orders", `${r.results.length} orders${from || to ? ` (${from || "start"} → ${to || "today"})` : ""}`);
+  const name = `insihouse-orders-${new Date(Date.now() + 330 * 60_000).toISOString().slice(0, 10)}.csv`;
+  return new Response(`\uFEFF${[head.map(cell).join(","), ...rows].join("\r\n")}`, {
+    headers: { "content-type": "text/csv; charset=utf-8", "content-disposition": `attachment; filename="${name}"`, "cache-control": "no-store", "x-content-type-options": "nosniff" },
+  });
+}
+
 // ============================ Settings ============================
 
 async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
   const { env, request: req } = ctx;
-  const keys = PUBLIC_SETTINGS;
+  const keys = [...PUBLIC_SETTINGS, ...PRIVATE_SETTINGS];
   if (m === "GET") {
     const r = await env.DB.prepare(`SELECT key, value FROM settings WHERE key IN (${keys.map(() => "?").join(",")})`).bind(...keys).all<{ key: string; value: string }>();
     const out: Record<string, string> = Object.fromEntries(keys.map((k) => [k, ""]));
@@ -576,6 +609,27 @@ async function settings(ctx: Ctx, user: User, m: string): Promise<Response> {
     }
     if (body.require_login !== undefined) v.require_login = bool(body.require_login) ? "1" : "0";
     if (body.cod_enabled !== undefined) v.cod_enabled = bool(body.cod_enabled) ? "1" : "0";
+    if (body.local_pins !== undefined) {
+      const list = String(body.local_pins ?? "").split(/[\s,]+/).map((x) => x.trim()).filter(Boolean);
+      if (list.length > 60 || list.some((x) => !/^[1-9][0-9]{1,5}$/.test(x))) throw new HttpError(400, "Local PIN codes: write PIN codes or their first digits, separated by commas, e.g. 276001, 276, 275");
+      v.local_pins = list.join(",");
+    }
+    if (body.local_label !== undefined) v.local_label = str(body.local_label, 60, "Local delivery name");
+    for (const k of ["local_fee", "local_free_above"] as const) {
+      if (body[k] === undefined) continue;
+      const n = String(body[k] ?? "").replace(/[^0-9]/g, "");
+      if (n && Number(n) > 100_000) throw new HttpError(400, "Delivery amounts look too high");
+      v[k] = n;
+    }
+    if (body.business_name !== undefined) v.business_name = str(body.business_name, 100, "Business name");
+    if (body.business_address !== undefined) v.business_address = str(body.business_address, 400, "Business address");
+    if (body.business_phone !== undefined) v.business_phone = str(body.business_phone, 30, "Business phone");
+    if (body.invoice_note !== undefined) v.invoice_note = str(body.invoice_note, 300, "Bill note");
+    if (body.gstin !== undefined) {
+      const g = str(body.gstin, 15, "GSTIN").toUpperCase();
+      if (g && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(g)) throw new HttpError(400, "GSTIN looks wrong. It has 15 characters, e.g. 09ABCDE1234F1Z5");
+      v.gstin = g;
+    }
     if (body.hold_hours !== undefined) {
       const h = String(body.hold_hours ?? "").replace(/[^0-9]/g, "");
       if (h && Number(h) > 720) throw new HttpError(400, "Hours must be 720 (30 days) or less");

@@ -24,6 +24,20 @@ export function useLiveCatalog(initial: { products: Product[]; settings: Setting
   return { ...data, live };
 }
 
+export function isLocalPin(settings: Settings, pincode: string): boolean {
+  if (!settings.local_pins || settings.local_fee === "" || !/^[1-9][0-9]{5}$/.test(pincode)) return false;
+  return settings.local_pins.split(",").map((s) => s.trim()).filter(Boolean).some((p) => pincode.startsWith(p));
+}
+
+/** Delivery for this PIN code: the shop's own team for local PINs, courier rate for the rest. Same rule as the server. */
+export function deliveryFor(settings: Settings, subtotal: number, pincode: string): { fee: number | null; local: boolean } {
+  if (isLocalPin(settings, pincode)) {
+    const free = settings.local_free_above !== "" && subtotal >= Number(settings.local_free_above);
+    return { fee: free ? 0 : Number(settings.local_fee), local: true };
+  }
+  return { fee: shippingFor(settings, subtotal), local: false };
+}
+
 /** Delivery charge for a subtotal, or null when the shop hasn't set one (then it's confirmed on WhatsApp). */
 export function shippingFor(settings: Settings, subtotal: number): number | null {
   if (settings.shipping_fee === "") return null;

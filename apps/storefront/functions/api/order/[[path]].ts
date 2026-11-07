@@ -6,7 +6,7 @@
 // Prices, stock, coupons and totals are always worked out here from the database, never trusted from the browser.
 import { emit } from "../../_lib/providers";
 import { currentCustomer, priceCoupon, saveAddress } from "../../_lib/shop";
-import { clientIp, EMAIL_RE, getSetting, HttpError, int, json, mobile, readJson, sameOrigin, str, type Ctx, type D1Database } from "../../_lib/util";
+import { clientIp, EMAIL_RE, getSetting, isLocalPin, HttpError, int, json, mobile, readJson, sameOrigin, str, type Ctx, type D1Database } from "../../_lib/util";
 
 const MAX_ORDERS_PER_HOUR = 5;
 
@@ -26,6 +26,17 @@ export const onRequest = async (ctx: Ctx): Promise<Response> => {
     return json({ error: "Something went wrong. Please try again or message us on WhatsApp." }, 500);
   }
 };
+
+/** Delivery charge: own team for local PIN codes (if set up), courier rate for everyone else. null = not set yet. */
+async function deliveryFor(db: D1Database, subtotal: number, pincode: string): Promise<{ fee: number | null; local: boolean }> {
+  const pins = await getSetting(db, "local_pins");
+  const localFee = await getSetting(db, "local_fee");
+  if (pins && localFee !== "" && isLocalPin(pins, pincode)) {
+    const freeAbove = await getSetting(db, "local_free_above");
+    return { fee: freeAbove !== "" && subtotal >= Number(freeAbove) ? 0 : Number(localFee), local: true };
+  }
+  return { fee: await shippingFor(db, subtotal), local: false };
+}
 
 async function shippingFor(db: D1Database, subtotal: number): Promise<number | null> {
   const fee = await getSetting(db, "shipping_fee");
@@ -171,7 +182,8 @@ async function placeOrder(ctx: Ctx): Promise<Response> {
     }
   }
 
-  let shipping = await shippingFor(db, subtotal);
+  const delivery = await deliveryFor(db, subtotal, pincode);
+  let shipping = delivery.fee;
   const shipNote = shipping === null ? "Delivery charge not set yet: confirm it with the customer." : "";
   if (method === "cod") {
     const fee = Number((await getSetting(db, "cod_fee")) || 0);
@@ -214,6 +226,10 @@ async function placeOrder(ctx: Ctx): Promise<Response> {
         me?.id ?? null, coupon?.code ?? "", occasion, method, method === "cod" ? "cod" : "pending")
       .run();
     id = r.meta.last_row_id as number;
+    if (delivery.local) {
+      const label = (await getSetting(db, "local_label")) || "Our own delivery";
+      await db.prepare("UPDATE orders SET courier = ? WHERE id = ?").bind(label.slice(0, 60), id).run();
+    }
   } catch (e) {
     await undo(tracked.length);
     throw e;
@@ -229,9 +245,12 @@ async function placeOrder(ctx: Ctx): Promise<Response> {
   if (me && body.save_address === true) {
     try { await saveAddress(db, me.id, { label: "Home", name, phone, address, city, state, pincode }); } catch { /* address book full: the order still goes through */ }
   }
-  emit(ctx, "order.created", { number, total, subtotal, shipping: shipping ?? 0, discount, payment_method: method, city, state, pincode, items: items.map((i) => ({ name: i.name, qty: i.qty, price: i.priceInr })) });
+  emit(ctx, "order.created", { number, total, subtotal, shipping: shipping ?? 0, discount, payment_method: method, city, state, pincode, items: items.map((i) => ({ name: i.name, qty: i.qty, price: i.priceInr })) },
+    [`🛍️ New order ${number} · ₹${total}`, `${name} · ${city} ${pincode}${delivery.local ? " · LOCAL delivery" : ""}`,
+      ...items.map((i) => `• ${i.name} × ${i.qty}`), method === "cod" ? "💵 Cash on delivery" : "💳 UPI: check the payment",
+      gift ? `🎁 Card: ${gift.slice(0, 120)}` : "", `Open: ${new URL(req.url).origin}/admin/#/orders/${id}`].filter(Boolean).join("\n"));
 
-  return json({ number, items: lines, subtotal, shipping, discount, total, payment_method: method, upi_id: method === "upi" ? await getSetting(db, "upi_id") : "" }, 201);
+  return json({ number, items: lines, subtotal, shipping, discount, total, local: delivery.local, payment_method: method, upi_id: method === "upi" ? await getSetting(db, "upi_id") : "" }, 201);
 }
 
 async function findOrder(db: D1Database, req: Request, n: unknown, phone: unknown) {
