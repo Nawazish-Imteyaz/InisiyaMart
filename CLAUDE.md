@@ -28,6 +28,7 @@ to customers **all over India** (decision 006). We do **not** deliver to the GCC
 | `docs/knowledge-base/07-roadmap.md` | Phases, milestones, what to build next |
 | `docs/knowledge-base/08-brand-intake.md` | What the owner must provide (logo, products…) |
 | `docs/knowledge-base/09-glossary.md` | Terms used across the docs |
+| `docs/knowledge-base/10-marketplace-plan.md` | **Multi-seller handmade marketplace (decision 010)**: sellers, dashboards, orders split per seller, legal prototype vs launch, build phases |
 | `docs/brand/` | Logo, colours, fonts, photos |
 | `docs/design/` | Page designs (mock-ups) |
 | `docs/decisions/` | Decision log (one file per decision) |
